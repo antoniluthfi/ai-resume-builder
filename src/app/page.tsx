@@ -11,6 +11,7 @@ import { ProjectsForm } from "@/components/forms/ProjectsForm";
 import { CertificationsForm } from "@/components/forms/CertificationsForm";
 import { ResumePreview } from "@/components/preview/ResumePreview";
 import { PdfDownloadButton } from "@/components/pdf/PdfDownloadButton";
+import { DocxDownloadButton } from "@/components/pdf/DocxDownloadButton";
 import { JobDescriptionInput } from "@/components/jd/JobDescriptionInput";
 import { MatchResults } from "@/components/jd/MatchResults";
 import { AiSuggestions } from "@/components/jd/AiSuggestions";
@@ -47,6 +48,7 @@ export default function Home() {
           <div className="flex items-center gap-3">
             <SettingsDrawer />
             <PdfDownloadButton />
+            <DocxDownloadButton />
           </div>
         </div>
       </header>
