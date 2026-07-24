@@ -12,6 +12,7 @@ export function CoverLetterPanel({ jobDescription }: { jobDescription: string })
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [recipientEmail, setRecipientEmail] = useState("");
 
   async function handleGenerate() {
     if (!apiKey) return;
@@ -52,6 +53,12 @@ export function CoverLetterPanel({ jobDescription }: { jobDescription: string })
     URL.revokeObjectURL(url);
   }
 
+  function handleComposeEmail() {
+    const subject = `Application${resume.personalInfo.title ? ` for ${resume.personalInfo.title}` : ""} — ${resume.personalInfo.name || ""}`;
+    const mailto = `mailto:${recipientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(coverLetter)}`;
+    window.location.href = mailto;
+  }
+
   return (
     <div className={sectionClass}>
       <div className="flex items-center justify-between">
@@ -82,6 +89,31 @@ export function CoverLetterPanel({ jobDescription }: { jobDescription: string })
             <button className={smallButtonClass} onClick={handleDownload}>
               Download .txt
             </button>
+          </div>
+
+          <div className="rounded-md border border-gray-100 p-3 space-y-2">
+            <label className="block text-xs font-medium text-gray-600">Send via email</label>
+            <div className="flex gap-2">
+              <input
+                type="email"
+                className={inputClass}
+                placeholder="recruiter@company.com"
+                value={recipientEmail}
+                onChange={(e) => setRecipientEmail(e.target.value)}
+              />
+              <button
+                className={`shrink-0 ${primaryButtonClass}`}
+                onClick={handleComposeEmail}
+                disabled={!recipientEmail.trim()}
+              >
+                Compose Email
+              </button>
+            </div>
+            <p className="text-[11px] text-gray-400">
+              Opens your default email app with the subject and this letter filled in. Browsers can&apos;t
+              attach files automatically — remember to attach your downloaded PDF/DOCX in the compose
+              window that opens.
+            </p>
           </div>
         </div>
       )}
