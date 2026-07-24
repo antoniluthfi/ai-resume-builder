@@ -9,6 +9,7 @@ import {
   ProjectEntry,
   ResumeData,
 } from "@/types/resume";
+import { LlmProvider } from "@/lib/llm/types";
 
 const STORAGE_KEY = "ai-resume-builder:resume";
 
@@ -46,11 +47,15 @@ interface ResumeState {
   aiMissingSkills: string[];
   isAnalyzing: boolean;
   analyzeError: string | null;
+  availableProviders: LlmProvider[];
+  selectedProvider: LlmProvider | null;
 
   setPersonalInfo: (info: Partial<PersonalInfo>) => void;
   setSummary: (summary: string) => void;
   setSkills: (skills: string[]) => void;
   loadParsedResume: (parsed: ParsedResumeData) => void;
+  setAvailableProviders: (providers: LlmProvider[]) => void;
+  setSelectedProvider: (provider: LlmProvider | null) => void;
 
   addExperience: () => void;
   updateExperience: (id: string, patch: Partial<ExperienceEntry>) => void;
@@ -82,6 +87,8 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
   aiMissingSkills: [],
   isAnalyzing: false,
   analyzeError: null,
+  availableProviders: [],
+  selectedProvider: null,
 
   setPersonalInfo: (info) =>
     set((state) => {
@@ -276,6 +283,16 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
 
   setAnalyzing: (isAnalyzing) => set({ isAnalyzing }),
   setAnalyzeError: (analyzeError) => set({ analyzeError }),
+
+  setAvailableProviders: (providers) =>
+    set((state) => ({
+      availableProviders: providers,
+      selectedProvider: state.selectedProvider && providers.includes(state.selectedProvider)
+        ? state.selectedProvider
+        : providers[0] ?? null,
+    })),
+
+  setSelectedProvider: (provider) => set({ selectedProvider: provider }),
 }));
 
 /**

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { parseResumeFromPdf } from "@/lib/anthropic";
+import { getLlmClient, listAvailableProviders } from "@/lib/llm";
+import { isLlmProvider } from "@/lib/llm/types";
 
 const MAX_FILE_BYTES = 8 * 1024 * 1024;
 
@@ -24,9 +25,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "File is too large (max 8MB)" }, { status: 400 });
   }
 
+  const provider = formData.get("provider");
+  if (!isLlmProvider(provider) || !listAvailableProviders().includes(provider)) {
+    return NextResponse.json({ error: "Unknown or unconfigured provider" }, { status: 400 });
+  }
+
   try {
     const buffer = Buffer.from(await file.arrayBuffer());
-    const parsed = await parseResumeFromPdf(buffer.toString("base64"));
+    const parsed = await getLlmClient(provider).parseResumeFromPdf(buffer.toString("base64"));
     return NextResponse.json(parsed);
   } catch (error) {
     console.error("parse-resume failed", error);

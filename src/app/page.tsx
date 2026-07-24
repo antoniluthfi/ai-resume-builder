@@ -14,6 +14,7 @@ import { PdfDownloadButton } from "@/components/pdf/PdfDownloadButton";
 import { JobDescriptionInput } from "@/components/jd/JobDescriptionInput";
 import { MatchResults } from "@/components/jd/MatchResults";
 import { AiSuggestions } from "@/components/jd/AiSuggestions";
+import { ProviderSelect } from "@/components/providers/ProviderSelect";
 import { useResumeStore, resumeToMatchText } from "@/store/resumeStore";
 import { matchResumeToJd } from "@/lib/keywordExtractor";
 
@@ -36,7 +37,10 @@ export default function Home() {
               ATS-friendly resume, tailored to every job description.
             </p>
           </div>
-          <PdfDownloadButton />
+          <div className="flex items-center gap-4">
+            <ProviderSelect />
+            <PdfDownloadButton />
+          </div>
         </div>
       </header>
 
