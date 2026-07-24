@@ -14,6 +14,7 @@ import { PdfDownloadButton } from "@/components/pdf/PdfDownloadButton";
 import { JobDescriptionInput } from "@/components/jd/JobDescriptionInput";
 import { MatchResults } from "@/components/jd/MatchResults";
 import { AiSuggestions } from "@/components/jd/AiSuggestions";
+import { CoverLetterPanel } from "@/components/jd/CoverLetterPanel";
 import { SettingsDrawer } from "@/components/providers/SettingsDrawer";
 import { QualityChecklist } from "@/components/quality/QualityChecklist";
 import { useResumeStore, resumeToMatchText } from "@/store/resumeStore";
@@ -71,6 +72,7 @@ export default function Home() {
           <JobDescriptionInput value={jobDescription} onChange={setJobDescription} />
           <MatchResults result={matchResult} />
           <AiSuggestions jobDescription={jobDescription} />
+          <CoverLetterPanel jobDescription={jobDescription} />
         </div>
       </main>
     </div>

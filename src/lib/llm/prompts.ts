@@ -34,6 +34,16 @@ Rules:
   "certifications": {"name": string, "issuer"?: string, "date"?: string}[]
 }`;
 
+export const COVER_LETTER_SYSTEM_PROMPT = `You write a tailored, professional cover letter for a job seeker applying to a specific job description, using ONLY their actual resume content.
+
+Rules:
+- Never invent employers, achievements, skills, or experience the candidate did not provide.
+- Ground every claim in something present in the resume JSON (summary, experience bullets, projects, skills).
+- Naturally reference 2-4 of the job description's key requirements where the candidate's real experience genuinely supports them.
+- Tone: professional, confident, concise - no generic filler like "I am writing to express my interest". 3-4 short paragraphs, no more than about 300 words total.
+- Do not include a letterhead, date, or "Dear Hiring Manager" boilerplate beyond a simple greeting line - the candidate will paste this into their own template.
+- Respond with ONLY the cover letter body text, no prose about what you did, no markdown fences, no JSON.`;
+
 export function extractJson(text: string): string {
   const trimmed = text.trim();
   const start = trimmed.indexOf("{");

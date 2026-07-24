@@ -2,7 +2,12 @@ import "server-only";
 import { GoogleGenAI } from "@google/genai";
 import { ParsedResumeData, ResumeData } from "@/types/resume";
 import { AnalyzeJdResult, LlmClient } from "./types";
-import { ANALYZE_JD_SYSTEM_PROMPT, PARSE_RESUME_SYSTEM_PROMPT, extractJson } from "./prompts";
+import {
+  ANALYZE_JD_SYSTEM_PROMPT,
+  COVER_LETTER_SYSTEM_PROMPT,
+  PARSE_RESUME_SYSTEM_PROMPT,
+  extractJson,
+} from "./prompts";
 import { normalizeAnalyzeResult, normalizeParsedResume } from "./normalize";
 
 const MODEL = "gemini-flash-latest";
@@ -56,4 +61,31 @@ async function parseResumeFromPdf(apiKey: string, base64Pdf: string): Promise<Pa
   return normalizeParsedResume(JSON.parse(extractJson(text)));
 }
 
-export const geminiClient: LlmClient = { analyzeJobMatch, parseResumeFromPdf };
+async function generateCoverLetter(
+  apiKey: string,
+  resume: ResumeData,
+  jobDescription: string
+): Promise<string> {
+  const gemini = new GoogleGenAI({ apiKey });
+
+  const response = await gemini.models.generateContent({
+    model: MODEL,
+    config: { systemInstruction: COVER_LETTER_SYSTEM_PROMPT },
+    contents: [
+      {
+        role: "user",
+        parts: [
+          {
+            text: `JOB DESCRIPTION:\n${jobDescription}\n\nRESUME JSON:\n${JSON.stringify(resume, null, 2)}`,
+          },
+        ],
+      },
+    ],
+  });
+
+  const text = response.text;
+  if (!text) throw new Error("No text response from Gemini");
+  return text.trim();
+}
+
+export const geminiClient: LlmClient = { analyzeJobMatch, parseResumeFromPdf, generateCoverLetter };

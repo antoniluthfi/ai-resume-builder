@@ -2,7 +2,12 @@ import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { ParsedResumeData, ResumeData } from "@/types/resume";
 import { AnalyzeJdResult, LlmClient } from "./types";
-import { ANALYZE_JD_SYSTEM_PROMPT, PARSE_RESUME_SYSTEM_PROMPT, extractJson } from "./prompts";
+import {
+  ANALYZE_JD_SYSTEM_PROMPT,
+  COVER_LETTER_SYSTEM_PROMPT,
+  PARSE_RESUME_SYSTEM_PROMPT,
+  extractJson,
+} from "./prompts";
 import { normalizeAnalyzeResult, normalizeParsedResume } from "./normalize";
 
 const MODEL = "claude-haiku-4-5-20251001";
@@ -66,4 +71,31 @@ async function parseResumeFromPdf(apiKey: string, base64Pdf: string): Promise<Pa
   return normalizeParsedResume(JSON.parse(extractJson(textBlock.text)));
 }
 
-export const anthropicClient: LlmClient = { analyzeJobMatch, parseResumeFromPdf };
+async function generateCoverLetter(
+  apiKey: string,
+  resume: ResumeData,
+  jobDescription: string
+): Promise<string> {
+  const anthropic = new Anthropic({ apiKey });
+
+  const message = await anthropic.messages.create({
+    model: MODEL,
+    max_tokens: 1024,
+    system: COVER_LETTER_SYSTEM_PROMPT,
+    messages: [
+      {
+        role: "user",
+        content: `JOB DESCRIPTION:\n${jobDescription}\n\nRESUME JSON:\n${JSON.stringify(resume, null, 2)}`,
+      },
+    ],
+  });
+
+  const textBlock = message.content.find((block) => block.type === "text");
+  if (!textBlock || textBlock.type !== "text") {
+    throw new Error("No text response from Claude");
+  }
+
+  return textBlock.text.trim();
+}
+
+export const anthropicClient: LlmClient = { analyzeJobMatch, parseResumeFromPdf, generateCoverLetter };

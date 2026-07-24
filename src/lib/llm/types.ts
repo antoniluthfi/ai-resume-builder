@@ -44,6 +44,7 @@ export interface AnalyzeJdResult {
 export interface LlmClient {
   analyzeJobMatch(apiKey: string, resume: ResumeData, jobDescription: string): Promise<AnalyzeJdResult>;
   parseResumeFromPdf(apiKey: string, base64Pdf: string): Promise<ParsedResumeData>;
+  generateCoverLetter(apiKey: string, resume: ResumeData, jobDescription: string): Promise<string>;
 }
 
 export function isLlmProvider(value: unknown): value is LlmProvider {
