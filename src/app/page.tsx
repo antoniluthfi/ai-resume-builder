@@ -28,7 +28,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="border-b border-gray-200 bg-white px-6 py-4">
-        <div className="mx-auto flex max-w-6xl items-center justify-between">
+        <div className="mx-auto flex max-w-[1680px] items-center justify-between">
           <div>
             <h1 className="text-lg font-bold text-gray-900">AI Resume Builder</h1>
             <p className="text-xs text-gray-500">
@@ -39,8 +39,8 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="mx-auto grid max-w-6xl grid-cols-1 gap-6 px-6 py-6 lg:grid-cols-3">
-        <div className="space-y-4 lg:col-span-1">
+      <main className="mx-auto grid max-w-[1680px] grid-cols-1 gap-6 px-6 py-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)_minmax(0,1fr)]">
+        <div className="space-y-4">
           <PersonalInfoForm />
           <SummaryForm />
           <ExperienceForm />
@@ -50,11 +50,11 @@ export default function Home() {
           <CertificationsForm />
         </div>
 
-        <div className="lg:col-span-1">
+        <div>
           <ResumePreview />
         </div>
 
-        <div className="space-y-4 lg:col-span-1">
+        <div className="space-y-4">
           <JobDescriptionInput value={jobDescription} onChange={setJobDescription} />
           <MatchResults result={matchResult} />
           <AiSuggestions jobDescription={jobDescription} />
