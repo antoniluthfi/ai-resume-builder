@@ -51,6 +51,16 @@ export interface ResumeData {
   certifications: CertificationEntry[];
 }
 
+export interface ParsedResumeData {
+  personalInfo: PersonalInfo;
+  summary: string;
+  experience: Omit<ExperienceEntry, "id">[];
+  education: Omit<EducationEntry, "id">[];
+  skills: string[];
+  projects: Omit<ProjectEntry, "id">[];
+  certifications: Omit<CertificationEntry, "id">[];
+}
+
 export const emptyResumeData: ResumeData = {
   personalInfo: {
     name: "",

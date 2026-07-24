@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { ResumeUploadButton } from "@/components/forms/ResumeUploadButton";
 import { PersonalInfoForm } from "@/components/forms/PersonalInfoForm";
 import { SummaryForm } from "@/components/forms/SummaryForm";
 import { ExperienceForm } from "@/components/forms/ExperienceForm";
@@ -41,6 +42,7 @@ export default function Home() {
 
       <main className="mx-auto grid max-w-[1680px] grid-cols-1 gap-6 px-6 py-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)_minmax(0,1fr)]">
         <div className="space-y-4">
+          <ResumeUploadButton />
           <PersonalInfoForm />
           <SummaryForm />
           <ExperienceForm />

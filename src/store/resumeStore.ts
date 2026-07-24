@@ -4,6 +4,7 @@ import {
   EducationEntry,
   emptyResumeData,
   ExperienceEntry,
+  ParsedResumeData,
   PersonalInfo,
   ProjectEntry,
   ResumeData,
@@ -49,6 +50,7 @@ interface ResumeState {
   setPersonalInfo: (info: Partial<PersonalInfo>) => void;
   setSummary: (summary: string) => void;
   setSkills: (skills: string[]) => void;
+  loadParsedResume: (parsed: ParsedResumeData) => void;
 
   addExperience: () => void;
   updateExperience: (id: string, patch: Partial<ExperienceEntry>) => void;
@@ -101,6 +103,21 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
   setSkills: (skills) =>
     set((state) => {
       const resume = { ...state.resume, skills };
+      persist(resume);
+      return { resume };
+    }),
+
+  loadParsedResume: (parsed) =>
+    set(() => {
+      const resume: ResumeData = {
+        personalInfo: parsed.personalInfo,
+        summary: parsed.summary,
+        skills: parsed.skills,
+        experience: parsed.experience.map((entry) => ({ ...entry, id: makeId() })),
+        education: parsed.education.map((entry) => ({ ...entry, id: makeId() })),
+        projects: parsed.projects.map((entry) => ({ ...entry, id: makeId() })),
+        certifications: parsed.certifications.map((entry) => ({ ...entry, id: makeId() })),
+      };
       persist(resume);
       return { resume };
     }),
