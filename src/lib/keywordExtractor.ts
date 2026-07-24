@@ -43,8 +43,18 @@ export interface MatchResult {
   jdKeywordCount: number;
 }
 
+// Bullet/list glyphs (including CJK-style "・") and emoji that job postings
+// commonly use for formatting. keyword-extractor's tokenizer doesn't treat
+// these as word boundaries, so "・Lead" would otherwise survive as the single
+// unmatchable token "・lead" instead of "lead".
+const BULLET_AND_EMOJI_PATTERN = /[•◦▪‣●○▶✓✔★・]|\p{Extended_Pictographic}/gu;
+
+function stripFormattingNoise(text: string): string {
+  return text.replace(BULLET_AND_EMOJI_PATTERN, " ");
+}
+
 function extractSingleTokens(text: string): string[] {
-  return keywordExtractor.extract(text, {
+  return keywordExtractor.extract(stripFormattingNoise(text), {
     language: "english",
     remove_digits: false,
     return_changed_case: true,
@@ -53,7 +63,7 @@ function extractSingleTokens(text: string): string[] {
 }
 
 function extractPhrases(text: string): string[] {
-  const lower = text.toLowerCase();
+  const lower = stripFormattingNoise(text).toLowerCase();
   return KNOWN_PHRASES.filter((phrase) => lower.includes(phrase));
 }
 
@@ -63,8 +73,12 @@ export function extractJdKeywords(jobDescription: string): string[] {
   const phrases = extractPhrases(jobDescription);
 
   // Drop single-token words already covered by a matched phrase, e.g. don't
-  // separately list "machine"/"learning" alongside "machine learning".
-  const phraseWords = new Set(phrases.flatMap((p) => p.split(/\W+/)));
+  // separately list "machine"/"learning" or the punctuation-collapsed
+  // "nodejs" alongside "machine learning" / "node.js".
+  const phraseWords = new Set([
+    ...phrases.flatMap((p) => p.split(/\W+/)),
+    ...phrases.map((p) => p.replace(/\W+/g, "")),
+  ]);
   const filteredTokens = tokens.filter((t) => !phraseWords.has(t));
 
   return Array.from(new Set([...phrases, ...filteredTokens]));
