@@ -214,3 +214,15 @@ export const useResumeStore = create<ResumeState>((set) => ({
       return { resume };
     }),
 }));
+
+export function resumeToMatchText(resume: ResumeData): string {
+  return [
+    resume.summary,
+    resume.skills.join(", "),
+    ...resume.experience.flatMap((e) => [e.title, e.company, ...e.bullets]),
+    ...resume.projects.flatMap((p) => [p.name, p.description, ...(p.bullets ?? [])]),
+    ...resume.education.map((e) => `${e.degree} ${e.field ?? ""}`),
+  ]
+    .filter(Boolean)
+    .join(" \n ");
+}
