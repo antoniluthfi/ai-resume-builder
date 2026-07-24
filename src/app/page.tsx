@@ -15,6 +15,7 @@ import { JobDescriptionInput } from "@/components/jd/JobDescriptionInput";
 import { MatchResults } from "@/components/jd/MatchResults";
 import { AiSuggestions } from "@/components/jd/AiSuggestions";
 import { ProviderSelect } from "@/components/providers/ProviderSelect";
+import { QualityChecklist } from "@/components/quality/QualityChecklist";
 import { useResumeStore, resumeToMatchText } from "@/store/resumeStore";
 import { matchResumeToJd } from "@/lib/keywordExtractor";
 
@@ -61,8 +62,9 @@ export default function Home() {
           <CertificationsForm />
         </div>
 
-        <div>
+        <div className="space-y-4">
           <ResumePreview />
+          <QualityChecklist />
         </div>
 
         <div className="space-y-4">

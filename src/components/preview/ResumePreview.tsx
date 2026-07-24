@@ -10,6 +10,9 @@ export function ResumePreview() {
     <div className="rounded-lg border border-gray-200 bg-white p-8 text-sm text-gray-900 space-y-4">
       <div>
         <h1 className="text-xl font-bold">{personalInfo.name || "Your Name"}</h1>
+        {personalInfo.title && (
+          <p className="text-sm font-medium text-gray-700">{personalInfo.title}</p>
+        )}
         <p className="text-xs text-gray-600">
           {[personalInfo.email, personalInfo.phone, personalInfo.location]
             .filter(Boolean)

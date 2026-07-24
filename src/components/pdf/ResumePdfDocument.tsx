@@ -9,6 +9,7 @@ const styles = StyleSheet.create({
     color: "#111827",
   },
   name: { fontSize: 18, fontFamily: "Helvetica-Bold" },
+  professionalTitle: { fontSize: 11, fontFamily: "Helvetica-Bold", color: "#374151", marginTop: 2 },
   contactLine: { fontSize: 9, color: "#4b5563", marginTop: 2 },
   section: { marginTop: 12 },
   sectionTitle: {
@@ -35,6 +36,7 @@ export function ResumePdfDocument({ resume }: { resume: ResumeData }) {
     <Document>
       <Page size="A4" style={styles.page}>
         <Text style={styles.name}>{personalInfo.name || "Your Name"}</Text>
+        {personalInfo.title && <Text style={styles.professionalTitle}>{personalInfo.title}</Text>}
         <Text style={styles.contactLine}>
           {[personalInfo.email, personalInfo.phone, personalInfo.location].filter(Boolean).join(" | ")}
         </Text>

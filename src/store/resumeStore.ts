@@ -325,6 +325,7 @@ function applyPathValue(resume: ResumeData, path: string, value: string): Resume
 
 export function resumeToMatchText(resume: ResumeData): string {
   return [
+    resume.personalInfo.title,
     resume.summary,
     resume.skills.join(", "),
     ...resume.experience.flatMap((e) => [e.title, e.company, ...e.bullets]),

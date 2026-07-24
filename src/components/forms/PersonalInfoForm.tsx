@@ -21,6 +21,15 @@ export function PersonalInfoForm() {
           />
         </div>
         <div>
+          <label className={labelClass}>Professional title (optional)</label>
+          <input
+            className={inputClass}
+            value={personalInfo.title ?? ""}
+            onChange={(e) => setPersonalInfo({ title: e.target.value })}
+            placeholder="Senior Frontend Engineer"
+          />
+        </div>
+        <div>
           <label className={labelClass}>Email</label>
           <input
             className={inputClass}

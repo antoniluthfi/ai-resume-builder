@@ -1,5 +1,6 @@
 export interface PersonalInfo {
   name: string;
+  title?: string;
   email: string;
   phone: string;
   location: string;
@@ -64,6 +65,7 @@ export interface ParsedResumeData {
 export const emptyResumeData: ResumeData = {
   personalInfo: {
     name: "",
+    title: "",
     email: "",
     phone: "",
     location: "",
