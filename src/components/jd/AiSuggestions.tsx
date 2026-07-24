@@ -9,6 +9,19 @@ import {
   smallButtonClass,
 } from "@/lib/formStyles";
 
+function describeSuggestionPath(path: string): string {
+  if (path === "personalInfo.title") return "Professional title";
+  if (path === "summary") return "Summary";
+
+  const experienceMatch = path.match(/^experience\[(\d+)\]\.bullets\[(\d+)\]$/);
+  if (experienceMatch) return `Experience #${Number(experienceMatch[1]) + 1}, bullet ${Number(experienceMatch[2]) + 1}`;
+
+  const projectMatch = path.match(/^projects\[(\d+)\]\.bullets\[(\d+)\]$/);
+  if (projectMatch) return `Project #${Number(projectMatch[1]) + 1}, bullet ${Number(projectMatch[2]) + 1}`;
+
+  return path;
+}
+
 export function AiSuggestions({ jobDescription }: { jobDescription: string }) {
   const resume = useResumeStore((s) => s.resume);
   const aiSuggestions = useResumeStore((s) => s.aiSuggestions);
@@ -84,7 +97,7 @@ export function AiSuggestions({ jobDescription }: { jobDescription: string }) {
       <div className="space-y-3">
         {aiSuggestions.map((s) => (
           <div key={s.id} className="rounded-md border border-gray-100 p-3 space-y-2">
-            <p className="text-xs text-gray-500">{s.path}</p>
+            <p className="text-xs text-gray-500">{describeSuggestionPath(s.path)}</p>
             <p className="text-sm line-through text-gray-400">{s.original}</p>
             <p className="text-sm text-gray-900">{s.suggested}</p>
             <p className="text-xs text-gray-500 italic">{s.reason}</p>

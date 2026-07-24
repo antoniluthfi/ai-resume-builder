@@ -12,6 +12,7 @@ export function normalizeParsedResume(parsed: Partial<ParsedResumeData>): Parsed
   return {
     personalInfo: {
       name: parsed.personalInfo?.name ?? "",
+      title: parsed.personalInfo?.title ?? "",
       email: parsed.personalInfo?.email ?? "",
       phone: parsed.personalInfo?.phone ?? "",
       location: parsed.personalInfo?.location ?? "",
