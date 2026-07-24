@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { ResumeUploadButton } from "@/components/forms/ResumeUploadButton";
 import { PersonalInfoForm } from "@/components/forms/PersonalInfoForm";
 import { SummaryForm } from "@/components/forms/SummaryForm";
@@ -17,14 +17,17 @@ import { MatchResults } from "@/components/jd/MatchResults";
 import { AiSuggestions } from "@/components/jd/AiSuggestions";
 import { CoverLetterPanel } from "@/components/jd/CoverLetterPanel";
 import { SettingsDrawer } from "@/components/providers/SettingsDrawer";
+import { VersionsDrawer } from "@/components/versions/VersionsDrawer";
 import { QualityChecklist } from "@/components/quality/QualityChecklist";
+import { UndoButton } from "@/components/undo/UndoButton";
 import { useResumeStore, resumeToMatchText } from "@/store/resumeStore";
 import { matchResumeToJd } from "@/lib/keywordExtractor";
 
 export default function Home() {
   const resume = useResumeStore((s) => s.resume);
   const hydrateFromStorage = useResumeStore((s) => s.hydrateFromStorage);
-  const [jobDescription, setJobDescription] = useState("");
+  const jobDescription = useResumeStore((s) => s.jobDescription);
+  const setJobDescription = useResumeStore((s) => s.setJobDescription);
 
   useEffect(() => {
     hydrateFromStorage();
@@ -46,6 +49,7 @@ export default function Home() {
             </p>
           </div>
           <div className="flex items-center gap-3">
+            <VersionsDrawer />
             <SettingsDrawer />
             <PdfDownloadButton />
             <DocxDownloadButton />
@@ -66,6 +70,9 @@ export default function Home() {
         </div>
 
         <div className="space-y-4">
+          <div className="flex justify-end">
+            <UndoButton />
+          </div>
           <ResumePreview />
           <QualityChecklist />
         </div>

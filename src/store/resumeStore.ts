@@ -13,6 +13,8 @@ import { LlmProvider, RawMissingSkill, RawProjectRelevance } from "@/lib/llm/typ
 
 const STORAGE_KEY = "ai-resume-builder:resume";
 const PROVIDER_KEYS_STORAGE_KEY = "ai-resume-builder:provider-keys";
+const VERSIONS_STORAGE_KEY = "ai-resume-builder:versions";
+const MAX_UNDO_ENTRIES = 10;
 
 function readStoredResume(): ResumeData | null {
   try {
@@ -44,6 +46,21 @@ function persistProviderKeys(keys: Partial<Record<LlmProvider, string>>) {
   window.localStorage.setItem(PROVIDER_KEYS_STORAGE_KEY, JSON.stringify(keys));
 }
 
+function readStoredVersions(): ResumeVersion[] | null {
+  try {
+    const raw = window.localStorage.getItem(VERSIONS_STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+function persistVersions(versions: ResumeVersion[]) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(VERSIONS_STORAGE_KEY, JSON.stringify(versions));
+}
+
 function makeId() {
   return Math.random().toString(36).slice(2, 10);
 }
@@ -62,8 +79,28 @@ export interface ProjectRelevance {
   reason: string;
 }
 
+export interface ResumeVersion {
+  id: string;
+  name: string;
+  createdAt: string;
+  jobDescription: string;
+  resume: ResumeData;
+  hiddenProjectIds: string[];
+}
+
+interface UndoSnapshot {
+  resume: ResumeData;
+  hiddenProjectIds: string[];
+}
+
+export interface BackupData {
+  resume: ResumeData;
+  versions: ResumeVersion[];
+}
+
 interface ResumeState {
   resume: ResumeData;
+  jobDescription: string;
   aiSuggestions: AiSuggestion[];
   aiMissingSkills: RawMissingSkill[];
   isAnalyzing: boolean;
@@ -72,10 +109,13 @@ interface ResumeState {
   selectedProvider: LlmProvider;
   projectRelevance: ProjectRelevance[];
   hiddenProjectIds: string[];
+  versions: ResumeVersion[];
+  undoStack: UndoSnapshot[];
 
   setPersonalInfo: (info: Partial<PersonalInfo>) => void;
   setSummary: (summary: string) => void;
   setSkills: (skills: string[]) => void;
+  setJobDescription: (jobDescription: string) => void;
   loadParsedResume: (parsed: ParsedResumeData) => void;
   hydrateFromStorage: () => void;
   setProviderKey: (provider: LlmProvider, key: string) => void;
@@ -106,10 +146,21 @@ interface ResumeState {
   setProjectRelevance: (raw: RawProjectRelevance[]) => void;
   toggleProjectVisibility: (projectId: string) => void;
   isProjectHidden: (projectId: string) => boolean;
+
+  saveVersion: (name: string) => void;
+  loadVersion: (id: string) => void;
+  deleteVersion: (id: string) => void;
+
+  pushUndoSnapshot: () => void;
+  undo: () => void;
+
+  exportBackup: () => BackupData;
+  restoreBackup: (data: BackupData) => void;
 }
 
 export const useResumeStore = create<ResumeState>((set, get) => ({
   resume: emptyResumeData,
+  jobDescription: "",
   aiSuggestions: [],
   aiMissingSkills: [],
   isAnalyzing: false,
@@ -118,6 +169,8 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
   selectedProvider: "anthropic",
   projectRelevance: [],
   hiddenProjectIds: [],
+  versions: [],
+  undoStack: [],
 
   setPersonalInfo: (info) =>
     set((state) => {
@@ -143,7 +196,10 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
       return { resume };
     }),
 
-  loadParsedResume: (parsed) =>
+  setJobDescription: (jobDescription) => set({ jobDescription }),
+
+  loadParsedResume: (parsed) => {
+    get().pushUndoSnapshot();
     set(() => {
       const resume: ResumeData = {
         personalInfo: parsed.personalInfo,
@@ -155,15 +211,18 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
         certifications: parsed.certifications.map((entry) => ({ ...entry, id: makeId() })),
       };
       persist(resume);
-      return { resume };
-    }),
+      return { resume, hiddenProjectIds: [] };
+    });
+  },
 
   hydrateFromStorage: () => {
     const stored = readStoredResume();
     const storedKeys = readStoredProviderKeys();
+    const storedVersions = readStoredVersions();
     set({
       ...(stored ? { resume: stored } : {}),
       ...(storedKeys ? { providerKeys: storedKeys } : {}),
+      ...(storedVersions ? { versions: storedVersions } : {}),
     });
   },
 
@@ -305,6 +364,7 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
   applySuggestion: (id) => {
     const suggestion = get().aiSuggestions.find((s) => s.id === id);
     if (!suggestion) return;
+    get().pushUndoSnapshot();
 
     set((state) => {
       const resume = applyPathValue(state.resume, suggestion.path, suggestion.suggested);
@@ -355,6 +415,72 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
     })),
 
   isProjectHidden: (projectId) => get().hiddenProjectIds.includes(projectId),
+
+  saveVersion: (name) =>
+    set((state) => {
+      const version: ResumeVersion = {
+        id: makeId(),
+        name,
+        createdAt: new Date().toISOString(),
+        jobDescription: state.jobDescription,
+        resume: state.resume,
+        hiddenProjectIds: state.hiddenProjectIds,
+      };
+      const versions = [version, ...state.versions];
+      persistVersions(versions);
+      return { versions };
+    }),
+
+  loadVersion: (id) => {
+    const version = get().versions.find((v) => v.id === id);
+    if (!version) return;
+    get().pushUndoSnapshot();
+    persist(version.resume);
+    set({
+      resume: version.resume,
+      jobDescription: version.jobDescription,
+      hiddenProjectIds: version.hiddenProjectIds,
+    });
+  },
+
+  deleteVersion: (id) =>
+    set((state) => {
+      const versions = state.versions.filter((v) => v.id !== id);
+      persistVersions(versions);
+      return { versions };
+    }),
+
+  pushUndoSnapshot: () =>
+    set((state) => ({
+      undoStack: [
+        ...state.undoStack.slice(-(MAX_UNDO_ENTRIES - 1)),
+        { resume: state.resume, hiddenProjectIds: state.hiddenProjectIds },
+      ],
+    })),
+
+  undo: () =>
+    set((state) => {
+      const last = state.undoStack[state.undoStack.length - 1];
+      if (!last) return state;
+      persist(last.resume);
+      return {
+        resume: last.resume,
+        hiddenProjectIds: last.hiddenProjectIds,
+        undoStack: state.undoStack.slice(0, -1),
+      };
+    }),
+
+  exportBackup: () => ({
+    resume: get().resume,
+    versions: get().versions,
+  }),
+
+  restoreBackup: (data) => {
+    get().pushUndoSnapshot();
+    persist(data.resume);
+    persistVersions(data.versions);
+    set({ resume: data.resume, versions: data.versions, hiddenProjectIds: [] });
+  },
 }));
 
 /**

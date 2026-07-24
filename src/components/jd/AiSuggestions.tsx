@@ -41,6 +41,7 @@ export function AiSuggestions({ jobDescription }: { jobDescription: string }) {
   const hiddenProjectIds = useResumeStore((s) => s.hiddenProjectIds);
   const toggleProjectVisibility = useResumeStore((s) => s.toggleProjectVisibility);
   const setSkills = useResumeStore((s) => s.setSkills);
+  const pushUndoSnapshot = useResumeStore((s) => s.pushUndoSnapshot);
 
   async function handleEnhance() {
     if (!apiKey) return;
@@ -113,7 +114,10 @@ export function AiSuggestions({ jobDescription }: { jobDescription: string }) {
                       ) : (
                         <button
                           className={`shrink-0 ${smallButtonClass}`}
-                          onClick={() => setSkills([...resume.skills, m.skill])}
+                          onClick={() => {
+                            pushUndoSnapshot();
+                            setSkills([...resume.skills, m.skill]);
+                          }}
                         >
                           + Add to skills
                         </button>
