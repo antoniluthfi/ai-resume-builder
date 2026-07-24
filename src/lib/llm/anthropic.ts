@@ -7,17 +7,12 @@ import { normalizeAnalyzeResult, normalizeParsedResume } from "./normalize";
 
 const MODEL = "claude-haiku-4-5-20251001";
 
-let client: Anthropic | null = null;
-function getClient(): Anthropic {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    throw new Error("ANTHROPIC_API_KEY is not set on the server");
-  }
-  if (!client) client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-  return client;
-}
-
-async function analyzeJobMatch(resume: ResumeData, jobDescription: string): Promise<AnalyzeJdResult> {
-  const anthropic = getClient();
+async function analyzeJobMatch(
+  apiKey: string,
+  resume: ResumeData,
+  jobDescription: string
+): Promise<AnalyzeJdResult> {
+  const anthropic = new Anthropic({ apiKey });
 
   const message = await anthropic.messages.create({
     model: MODEL,
@@ -39,8 +34,8 @@ async function analyzeJobMatch(resume: ResumeData, jobDescription: string): Prom
   return normalizeAnalyzeResult(JSON.parse(extractJson(textBlock.text)));
 }
 
-async function parseResumeFromPdf(base64Pdf: string): Promise<ParsedResumeData> {
-  const anthropic = getClient();
+async function parseResumeFromPdf(apiKey: string, base64Pdf: string): Promise<ParsedResumeData> {
+  const anthropic = new Anthropic({ apiKey });
 
   const message = await anthropic.messages.create({
     model: MODEL,

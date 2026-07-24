@@ -10,13 +10,14 @@ export function ResumeUploadButton() {
   const loadParsedResume = useResumeStore((s) => s.loadParsedResume);
   const hasExistingData = useResumeStore((s) => Boolean(s.resume.personalInfo.name || s.resume.experience.length));
   const selectedProvider = useResumeStore((s) => s.selectedProvider);
+  const apiKey = useResumeStore((s) => s.providerKeys[s.selectedProvider]) ?? "";
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     e.target.value = "";
-    if (!file || !selectedProvider) return;
+    if (!file || !apiKey) return;
 
     if (
       hasExistingData &&
@@ -31,6 +32,7 @@ export function ResumeUploadButton() {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("provider", selectedProvider);
+      formData.append("apiKey", apiKey);
       const response = await fetch("/api/parse-resume", { method: "POST", body: formData });
       const data = await response.json();
       if (!response.ok) {
@@ -54,7 +56,7 @@ export function ResumeUploadButton() {
         <button
           className={smallButtonClass}
           onClick={() => inputRef.current?.click()}
-          disabled={isUploading || !selectedProvider}
+          disabled={isUploading || !apiKey}
         >
           {isUploading ? "Parsing…" : "Upload PDF"}
         </button>

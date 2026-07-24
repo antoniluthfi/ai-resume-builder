@@ -35,16 +35,17 @@ export function AiSuggestions({ jobDescription }: { jobDescription: string }) {
   const applySuggestion = useResumeStore((s) => s.applySuggestion);
   const dismissSuggestion = useResumeStore((s) => s.dismissSuggestion);
   const selectedProvider = useResumeStore((s) => s.selectedProvider);
+  const apiKey = useResumeStore((s) => s.providerKeys[s.selectedProvider]) ?? "";
 
   async function handleEnhance() {
-    if (!selectedProvider) return;
+    if (!apiKey) return;
     setAnalyzing(true);
     setAnalyzeError(null);
     try {
       const response = await fetch("/api/analyze-jd", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ jobDescription, resume, provider: selectedProvider }),
+        body: JSON.stringify({ jobDescription, resume, provider: selectedProvider, apiKey }),
       });
       const data = await response.json();
       if (!response.ok) {
@@ -71,7 +72,7 @@ export function AiSuggestions({ jobDescription }: { jobDescription: string }) {
         <button
           className={primaryButtonClass}
           onClick={handleEnhance}
-          disabled={isAnalyzing || !jobDescription.trim() || !selectedProvider}
+          disabled={isAnalyzing || !jobDescription.trim() || !apiKey}
         >
           {isAnalyzing ? "Analyzing…" : "Enhance with AI"}
         </button>

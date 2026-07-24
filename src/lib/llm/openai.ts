@@ -7,17 +7,12 @@ import { normalizeAnalyzeResult, normalizeParsedResume } from "./normalize";
 
 const MODEL = "gpt-5.4-mini";
 
-let client: OpenAI | null = null;
-function getClient(): OpenAI {
-  if (!process.env.OPENAI_API_KEY) {
-    throw new Error("OPENAI_API_KEY is not set on the server");
-  }
-  if (!client) client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-  return client;
-}
-
-async function analyzeJobMatch(resume: ResumeData, jobDescription: string): Promise<AnalyzeJdResult> {
-  const openai = getClient();
+async function analyzeJobMatch(
+  apiKey: string,
+  resume: ResumeData,
+  jobDescription: string
+): Promise<AnalyzeJdResult> {
+  const openai = new OpenAI({ apiKey });
 
   const response = await openai.responses.create({
     model: MODEL,
@@ -34,8 +29,8 @@ async function analyzeJobMatch(resume: ResumeData, jobDescription: string): Prom
   return normalizeAnalyzeResult(JSON.parse(extractJson(response.output_text)));
 }
 
-async function parseResumeFromPdf(base64Pdf: string): Promise<ParsedResumeData> {
-  const openai = getClient();
+async function parseResumeFromPdf(apiKey: string, base64Pdf: string): Promise<ParsedResumeData> {
+  const openai = new OpenAI({ apiKey });
 
   const response = await openai.responses.create({
     model: MODEL,

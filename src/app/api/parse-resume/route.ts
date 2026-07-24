@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getLlmClient, listAvailableProviders } from "@/lib/llm";
+import { getLlmClient } from "@/lib/llm";
 import { isLlmProvider } from "@/lib/llm/types";
 
 const MAX_FILE_BYTES = 8 * 1024 * 1024;
@@ -26,13 +26,18 @@ export async function POST(request: NextRequest) {
   }
 
   const provider = formData.get("provider");
-  if (!isLlmProvider(provider) || !listAvailableProviders().includes(provider)) {
-    return NextResponse.json({ error: "Unknown or unconfigured provider" }, { status: 400 });
+  if (!isLlmProvider(provider)) {
+    return NextResponse.json({ error: "Unknown provider" }, { status: 400 });
+  }
+
+  const apiKey = formData.get("apiKey");
+  if (!apiKey || typeof apiKey !== "string") {
+    return NextResponse.json({ error: "Missing API key for the selected provider" }, { status: 400 });
   }
 
   try {
     const buffer = Buffer.from(await file.arrayBuffer());
-    const parsed = await getLlmClient(provider).parseResumeFromPdf(buffer.toString("base64"));
+    const parsed = await getLlmClient(provider).parseResumeFromPdf(apiKey, buffer.toString("base64"));
     return NextResponse.json(parsed);
   } catch (error) {
     console.error("parse-resume failed", error);

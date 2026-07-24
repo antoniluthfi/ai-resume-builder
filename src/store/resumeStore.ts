@@ -12,6 +12,7 @@ import {
 import { LlmProvider } from "@/lib/llm/types";
 
 const STORAGE_KEY = "ai-resume-builder:resume";
+const PROVIDER_KEYS_STORAGE_KEY = "ai-resume-builder:provider-keys";
 
 function readStoredResume(): ResumeData | null {
   try {
@@ -26,6 +27,21 @@ function readStoredResume(): ResumeData | null {
 function persist(resume: ResumeData) {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(resume));
+}
+
+function readStoredProviderKeys(): Partial<Record<LlmProvider, string>> | null {
+  try {
+    const raw = window.localStorage.getItem(PROVIDER_KEYS_STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+function persistProviderKeys(keys: Partial<Record<LlmProvider, string>>) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(PROVIDER_KEYS_STORAGE_KEY, JSON.stringify(keys));
 }
 
 function makeId() {
@@ -46,16 +62,16 @@ interface ResumeState {
   aiMissingSkills: string[];
   isAnalyzing: boolean;
   analyzeError: string | null;
-  availableProviders: LlmProvider[];
-  selectedProvider: LlmProvider | null;
+  providerKeys: Partial<Record<LlmProvider, string>>;
+  selectedProvider: LlmProvider;
 
   setPersonalInfo: (info: Partial<PersonalInfo>) => void;
   setSummary: (summary: string) => void;
   setSkills: (skills: string[]) => void;
   loadParsedResume: (parsed: ParsedResumeData) => void;
   hydrateFromStorage: () => void;
-  setAvailableProviders: (providers: LlmProvider[]) => void;
-  setSelectedProvider: (provider: LlmProvider | null) => void;
+  setProviderKey: (provider: LlmProvider, key: string) => void;
+  setSelectedProvider: (provider: LlmProvider) => void;
 
   addExperience: () => void;
   updateExperience: (id: string, patch: Partial<ExperienceEntry>) => void;
@@ -87,8 +103,8 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
   aiMissingSkills: [],
   isAnalyzing: false,
   analyzeError: null,
-  availableProviders: [],
-  selectedProvider: null,
+  providerKeys: {},
+  selectedProvider: "anthropic",
 
   setPersonalInfo: (info) =>
     set((state) => {
@@ -131,7 +147,11 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
 
   hydrateFromStorage: () => {
     const stored = readStoredResume();
-    if (stored) set({ resume: stored });
+    const storedKeys = readStoredProviderKeys();
+    set({
+      ...(stored ? { resume: stored } : {}),
+      ...(storedKeys ? { providerKeys: storedKeys } : {}),
+    });
   },
 
   addExperience: () =>
@@ -289,13 +309,12 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
   setAnalyzing: (isAnalyzing) => set({ isAnalyzing }),
   setAnalyzeError: (analyzeError) => set({ analyzeError }),
 
-  setAvailableProviders: (providers) =>
-    set((state) => ({
-      availableProviders: providers,
-      selectedProvider: state.selectedProvider && providers.includes(state.selectedProvider)
-        ? state.selectedProvider
-        : providers[0] ?? null,
-    })),
+  setProviderKey: (provider, key) =>
+    set((state) => {
+      const providerKeys = { ...state.providerKeys, [provider]: key };
+      persistProviderKeys(providerKeys);
+      return { providerKeys };
+    }),
 
   setSelectedProvider: (provider) => set({ selectedProvider: provider }),
 }));

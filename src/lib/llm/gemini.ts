@@ -7,17 +7,12 @@ import { normalizeAnalyzeResult, normalizeParsedResume } from "./normalize";
 
 const MODEL = "gemini-flash-latest";
 
-let client: GoogleGenAI | null = null;
-function getClient(): GoogleGenAI {
-  if (!process.env.GEMINI_API_KEY) {
-    throw new Error("GEMINI_API_KEY is not set on the server");
-  }
-  if (!client) client = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-  return client;
-}
-
-async function analyzeJobMatch(resume: ResumeData, jobDescription: string): Promise<AnalyzeJdResult> {
-  const gemini = getClient();
+async function analyzeJobMatch(
+  apiKey: string,
+  resume: ResumeData,
+  jobDescription: string
+): Promise<AnalyzeJdResult> {
+  const gemini = new GoogleGenAI({ apiKey });
 
   const response = await gemini.models.generateContent({
     model: MODEL,
@@ -39,8 +34,8 @@ async function analyzeJobMatch(resume: ResumeData, jobDescription: string): Prom
   return normalizeAnalyzeResult(JSON.parse(extractJson(text)));
 }
 
-async function parseResumeFromPdf(base64Pdf: string): Promise<ParsedResumeData> {
-  const gemini = getClient();
+async function parseResumeFromPdf(apiKey: string, base64Pdf: string): Promise<ParsedResumeData> {
+  const gemini = new GoogleGenAI({ apiKey });
 
   const response = await gemini.models.generateContent({
     model: MODEL,
