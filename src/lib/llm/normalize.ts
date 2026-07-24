@@ -2,8 +2,16 @@ import { ParsedResumeData } from "@/types/resume";
 import { AnalyzeJdResult } from "./types";
 
 export function normalizeAnalyzeResult(parsed: Partial<AnalyzeJdResult>): AnalyzeJdResult {
+  const missingSkills = Array.isArray(parsed.missingSkills)
+    ? parsed.missingSkills.map((m) => ({
+        skill: m?.skill ?? "",
+        reason: m?.reason ?? "",
+        impliedBy: Array.isArray(m?.impliedBy) ? m.impliedBy : [],
+      }))
+    : [];
+
   return {
-    missingSkills: Array.isArray(parsed.missingSkills) ? parsed.missingSkills : [],
+    missingSkills,
     suggestions: Array.isArray(parsed.suggestions) ? parsed.suggestions : [],
     projectRelevance: Array.isArray(parsed.projectRelevance) ? parsed.projectRelevance : [],
   };

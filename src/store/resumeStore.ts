@@ -9,7 +9,7 @@ import {
   ProjectEntry,
   ResumeData,
 } from "@/types/resume";
-import { LlmProvider, RawProjectRelevance } from "@/lib/llm/types";
+import { LlmProvider, RawMissingSkill, RawProjectRelevance } from "@/lib/llm/types";
 
 const STORAGE_KEY = "ai-resume-builder:resume";
 const PROVIDER_KEYS_STORAGE_KEY = "ai-resume-builder:provider-keys";
@@ -65,7 +65,7 @@ export interface ProjectRelevance {
 interface ResumeState {
   resume: ResumeData;
   aiSuggestions: AiSuggestion[];
-  aiMissingSkills: string[];
+  aiMissingSkills: RawMissingSkill[];
   isAnalyzing: boolean;
   analyzeError: string | null;
   providerKeys: Partial<Record<LlmProvider, string>>;
@@ -98,7 +98,7 @@ interface ResumeState {
   removeCertification: (id: string) => void;
 
   setAiSuggestions: (suggestions: AiSuggestion[]) => void;
-  setAiMissingSkills: (skills: string[]) => void;
+  setAiMissingSkills: (skills: RawMissingSkill[]) => void;
   applySuggestion: (id: string) => void;
   dismissSuggestion: (id: string) => void;
   setAnalyzing: (isAnalyzing: boolean) => void;

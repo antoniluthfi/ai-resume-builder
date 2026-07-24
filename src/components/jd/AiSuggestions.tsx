@@ -40,6 +40,7 @@ export function AiSuggestions({ jobDescription }: { jobDescription: string }) {
   const projectRelevance = useResumeStore((s) => s.projectRelevance);
   const hiddenProjectIds = useResumeStore((s) => s.hiddenProjectIds);
   const toggleProjectVisibility = useResumeStore((s) => s.toggleProjectVisibility);
+  const setSkills = useResumeStore((s) => s.setSkills);
 
   async function handleEnhance() {
     if (!apiKey) return;
@@ -88,14 +89,43 @@ export function AiSuggestions({ jobDescription }: { jobDescription: string }) {
       {aiMissingSkills.length > 0 && (
         <div>
           <p className="text-xs font-medium text-gray-600 mb-1">
-            Skills in the job description not found in your resume — only add if genuinely true:
+            Skills the job description asks for that aren&apos;t on your list:
           </p>
-          <div className="flex flex-wrap gap-1">
-            {aiMissingSkills.map((skill) => (
-              <span key={skill} className="rounded-full bg-amber-50 px-2 py-0.5 text-xs text-amber-700">
-                {skill}
-              </span>
-            ))}
+          <div className="space-y-2">
+            {aiMissingSkills.map((m) => {
+              const alreadyAdded = resume.skills.includes(m.skill);
+              const confidentlyImplied = m.impliedBy.length > 0;
+              return (
+                <div
+                  key={m.skill}
+                  className={`rounded-md border p-2 ${
+                    confidentlyImplied ? "border-blue-100 bg-blue-50/40" : "border-gray-100"
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-xs font-medium text-gray-800">
+                      {m.skill}
+                      {confidentlyImplied && <span className="text-blue-600"> · Implied by your skills</span>}
+                    </p>
+                    {confidentlyImplied &&
+                      (alreadyAdded ? (
+                        <span className="shrink-0 text-xs text-green-600">Added</span>
+                      ) : (
+                        <button
+                          className={`shrink-0 ${smallButtonClass}`}
+                          onClick={() => setSkills([...resume.skills, m.skill])}
+                        >
+                          + Add to skills
+                        </button>
+                      ))}
+                  </div>
+                  <p className="text-xs text-gray-500 italic">{m.reason}</p>
+                  {confidentlyImplied && (
+                    <p className="text-xs text-blue-600">Implied by: {m.impliedBy.join(", ")}</p>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

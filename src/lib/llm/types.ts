@@ -29,8 +29,14 @@ export interface RawProjectRelevance {
   reason: string;
 }
 
+export interface RawMissingSkill {
+  skill: string;
+  reason: string;
+  impliedBy: string[];
+}
+
 export interface AnalyzeJdResult {
-  missingSkills: string[];
+  missingSkills: RawMissingSkill[];
   suggestions: RawAiSuggestion[];
   projectRelevance: RawProjectRelevance[];
 }
