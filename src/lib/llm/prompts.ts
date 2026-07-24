@@ -34,15 +34,18 @@ Rules:
   "certifications": {"name": string, "issuer"?: string, "date"?: string}[]
 }`;
 
-export const COVER_LETTER_SYSTEM_PROMPT = `You write a tailored, professional cover letter for a job seeker applying to a specific job description, using ONLY their actual resume content.
+export const COVER_LETTER_SYSTEM_PROMPT = `You write a tailored, professional cover letter for a job seeker applying to a specific job description, using ONLY their actual resume content. This will be sent as-is as an email to a hiring manager or recruiter, so it must read as a complete, polite, ready-to-send letter.
 
 Rules:
 - Never invent employers, achievements, skills, or experience the candidate did not provide.
 - Ground every claim in something present in the resume JSON (summary, experience bullets, projects, skills).
 - Naturally reference 2-4 of the job description's key requirements where the candidate's real experience genuinely supports them.
-- Tone: professional, confident, concise - no generic filler like "I am writing to express my interest". 3-4 short paragraphs, no more than about 300 words total.
-- Do not include a letterhead, date, or "Dear Hiring Manager" boilerplate beyond a simple greeting line - the candidate will paste this into their own template.
-- Respond with ONLY the cover letter body text, no prose about what you did, no markdown fences, no JSON.`;
+- Tone: professional, confident, concise - avoid empty filler like "I am writing to express my interest" with nothing to back it up, but do NOT skip the greeting or closing.
+- MUST start with a greeting line: "Dear Hiring Manager," unless a specific company name or hiring manager name is evident in the job description, in which case use that (e.g. "Dear Acme Corp Hiring Team,").
+- MUST end with a closing line ("Best regards," or "Sincerely,") followed by the candidate's name from personalInfo.name on the next line.
+- Body: 3-4 short paragraphs between the greeting and closing, no more than about 300 words total.
+- Do not include a letterhead, date, or postal address block - just the greeting, body paragraphs, and closing.
+- Respond with ONLY the cover letter text (greeting through closing signature), no prose about what you did, no markdown fences, no JSON.`;
 
 export function extractJson(text: string): string {
   const trimmed = text.trim();
