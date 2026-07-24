@@ -119,7 +119,7 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
       const resume: ResumeData = {
         personalInfo: parsed.personalInfo,
         summary: parsed.summary,
-        skills: parsed.skills,
+        skills: Array.from(new Set(parsed.skills)),
         experience: parsed.experience.map((entry) => ({ ...entry, id: makeId() })),
         education: parsed.education.map((entry) => ({ ...entry, id: makeId() })),
         projects: parsed.projects.map((entry) => ({ ...entry, id: makeId() })),
