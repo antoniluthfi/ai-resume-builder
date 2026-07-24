@@ -53,6 +53,33 @@ function stripFormattingNoise(text: string): string {
   return text.replace(BULLET_AND_EMOJI_PATTERN, " ");
 }
 
+const MAX_SIGNAL_LINE_WORDS = 35;
+
+/**
+ * Job postings pasted as raw text mix concise requirement/responsibility
+ * lines (real signal) with narrative paragraphs - company blurbs, "thanks for
+ * applying" disclaimers, EEOC boilerplate (noise that dilutes the match %
+ * with words that will never appear on any resume). Bullet lines and short
+ * section headings are almost always a single sentence; boilerplate
+ * paragraphs, when copy-pasted, tend to collapse several sentences into one
+ * line. Filtering on that shape - not a company-specific word blocklist -
+ * keeps this generic across job postings.
+ */
+function isProseLine(line: string): boolean {
+  const trimmed = line.trim();
+  if (!trimmed) return false;
+  const sentenceEnders = (trimmed.match(/[.!?]+(?=\s|$)/g) ?? []).length;
+  const wordCount = trimmed.split(/\s+/).filter(Boolean).length;
+  return sentenceEnders > 1 || wordCount > MAX_SIGNAL_LINE_WORDS;
+}
+
+function extractSignalText(text: string): string {
+  return text
+    .split("\n")
+    .filter((line) => !isProseLine(line))
+    .join("\n");
+}
+
 function extractSingleTokens(text: string): string[] {
   return keywordExtractor.extract(stripFormattingNoise(text), {
     language: "english",
@@ -69,8 +96,9 @@ function extractPhrases(text: string): string[] {
 
 /** All candidate keywords/phrases found in a job description. */
 export function extractJdKeywords(jobDescription: string): string[] {
-  const tokens = extractSingleTokens(jobDescription).filter((t) => t.length > 2);
-  const phrases = extractPhrases(jobDescription);
+  const signalText = extractSignalText(jobDescription);
+  const tokens = extractSingleTokens(signalText).filter((t) => t.length > 2);
+  const phrases = extractPhrases(signalText);
 
   // Drop single-token words already covered by a matched phrase, e.g. don't
   // separately list "machine"/"learning" or the punctuation-collapsed
