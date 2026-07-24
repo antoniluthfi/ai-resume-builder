@@ -31,8 +31,20 @@ function makeId() {
   return Math.random().toString(36).slice(2, 10);
 }
 
+export interface AiSuggestion {
+  id: string;
+  path: string;
+  original: string;
+  suggested: string;
+  reason: string;
+}
+
 interface ResumeState {
   resume: ResumeData;
+  aiSuggestions: AiSuggestion[];
+  aiMissingSkills: string[];
+  isAnalyzing: boolean;
+  analyzeError: string | null;
 
   setPersonalInfo: (info: Partial<PersonalInfo>) => void;
   setSummary: (summary: string) => void;
@@ -53,10 +65,21 @@ interface ResumeState {
   addCertification: () => void;
   updateCertification: (id: string, patch: Partial<CertificationEntry>) => void;
   removeCertification: (id: string) => void;
+
+  setAiSuggestions: (suggestions: AiSuggestion[]) => void;
+  setAiMissingSkills: (skills: string[]) => void;
+  applySuggestion: (id: string) => void;
+  dismissSuggestion: (id: string) => void;
+  setAnalyzing: (isAnalyzing: boolean) => void;
+  setAnalyzeError: (error: string | null) => void;
 }
 
-export const useResumeStore = create<ResumeState>((set) => ({
+export const useResumeStore = create<ResumeState>((set, get) => ({
   resume: loadInitialResume(),
+  aiSuggestions: [],
+  aiMissingSkills: [],
+  isAnalyzing: false,
+  analyzeError: null,
 
   setPersonalInfo: (info) =>
     set((state) => {
@@ -213,7 +236,53 @@ export const useResumeStore = create<ResumeState>((set) => ({
       persist(resume);
       return { resume };
     }),
+
+  setAiSuggestions: (suggestions) => set({ aiSuggestions: suggestions }),
+  setAiMissingSkills: (skills) => set({ aiMissingSkills: skills }),
+
+  applySuggestion: (id) => {
+    const suggestion = get().aiSuggestions.find((s) => s.id === id);
+    if (!suggestion) return;
+
+    set((state) => {
+      const resume = applyPathValue(state.resume, suggestion.path, suggestion.suggested);
+      persist(resume);
+      return {
+        resume,
+        aiSuggestions: state.aiSuggestions.filter((s) => s.id !== id),
+      };
+    });
+  },
+
+  dismissSuggestion: (id) =>
+    set((state) => ({ aiSuggestions: state.aiSuggestions.filter((s) => s.id !== id) })),
+
+  setAnalyzing: (isAnalyzing) => set({ isAnalyzing }),
+  setAnalyzeError: (analyzeError) => set({ analyzeError }),
 }));
+
+/**
+ * Applies a suggested value to a dot/bracket path like "experience[0].bullets[2]"
+ * or "summary". Only supports the shapes the AI route is prompted to return.
+ */
+function applyPathValue(resume: ResumeData, path: string, value: string): ResumeData {
+  const tokens = path
+    .replace(/\[(\d+)\]/g, ".$1")
+    .split(".")
+    .filter(Boolean);
+
+  const clone = JSON.parse(JSON.stringify(resume)) as ResumeData;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let target: any = clone;
+  for (let i = 0; i < tokens.length - 1; i++) {
+    target = target[tokens[i]];
+    if (target === undefined) return resume;
+  }
+  const lastKey = tokens[tokens.length - 1];
+  if (target[lastKey] === undefined) return resume;
+  target[lastKey] = value;
+  return clone;
+}
 
 export function resumeToMatchText(resume: ResumeData): string {
   return [
