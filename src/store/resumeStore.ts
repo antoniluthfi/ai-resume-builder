@@ -13,14 +13,13 @@ import { LlmProvider } from "@/lib/llm/types";
 
 const STORAGE_KEY = "ai-resume-builder:resume";
 
-function loadInitialResume(): ResumeData {
-  if (typeof window === "undefined") return emptyResumeData;
+function readStoredResume(): ResumeData | null {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return emptyResumeData;
+    if (!raw) return null;
     return { ...emptyResumeData, ...JSON.parse(raw) };
   } catch {
-    return emptyResumeData;
+    return null;
   }
 }
 
@@ -54,6 +53,7 @@ interface ResumeState {
   setSummary: (summary: string) => void;
   setSkills: (skills: string[]) => void;
   loadParsedResume: (parsed: ParsedResumeData) => void;
+  hydrateFromStorage: () => void;
   setAvailableProviders: (providers: LlmProvider[]) => void;
   setSelectedProvider: (provider: LlmProvider | null) => void;
 
@@ -82,7 +82,7 @@ interface ResumeState {
 }
 
 export const useResumeStore = create<ResumeState>((set, get) => ({
-  resume: loadInitialResume(),
+  resume: emptyResumeData,
   aiSuggestions: [],
   aiMissingSkills: [],
   isAnalyzing: false,
@@ -128,6 +128,11 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
       persist(resume);
       return { resume };
     }),
+
+  hydrateFromStorage: () => {
+    const stored = readStoredResume();
+    if (stored) set({ resume: stored });
+  },
 
   addExperience: () =>
     set((state) => {

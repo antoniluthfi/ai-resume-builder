@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ResumeUploadButton } from "@/components/forms/ResumeUploadButton";
 import { PersonalInfoForm } from "@/components/forms/PersonalInfoForm";
 import { SummaryForm } from "@/components/forms/SummaryForm";
@@ -20,7 +20,12 @@ import { matchResumeToJd } from "@/lib/keywordExtractor";
 
 export default function Home() {
   const resume = useResumeStore((s) => s.resume);
+  const hydrateFromStorage = useResumeStore((s) => s.hydrateFromStorage);
   const [jobDescription, setJobDescription] = useState("");
+
+  useEffect(() => {
+    hydrateFromStorage();
+  }, [hydrateFromStorage]);
 
   const matchResult = useMemo(() => {
     if (!jobDescription.trim()) return null;
