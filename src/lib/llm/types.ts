@@ -23,9 +23,16 @@ export interface RawAiSuggestion {
   reason: string;
 }
 
+export interface RawProjectRelevance {
+  index: number;
+  relevant: boolean;
+  reason: string;
+}
+
 export interface AnalyzeJdResult {
   missingSkills: string[];
   suggestions: RawAiSuggestion[];
+  projectRelevance: RawProjectRelevance[];
 }
 
 export interface LlmClient {

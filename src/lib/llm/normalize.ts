@@ -5,6 +5,7 @@ export function normalizeAnalyzeResult(parsed: Partial<AnalyzeJdResult>): Analyz
   return {
     missingSkills: Array.isArray(parsed.missingSkills) ? parsed.missingSkills : [],
     suggestions: Array.isArray(parsed.suggestions) ? parsed.suggestions : [],
+    projectRelevance: Array.isArray(parsed.projectRelevance) ? parsed.projectRelevance : [],
   };
 }
 

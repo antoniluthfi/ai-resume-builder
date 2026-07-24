@@ -9,7 +9,7 @@ import {
   ProjectEntry,
   ResumeData,
 } from "@/types/resume";
-import { LlmProvider } from "@/lib/llm/types";
+import { LlmProvider, RawProjectRelevance } from "@/lib/llm/types";
 
 const STORAGE_KEY = "ai-resume-builder:resume";
 const PROVIDER_KEYS_STORAGE_KEY = "ai-resume-builder:provider-keys";
@@ -56,6 +56,12 @@ export interface AiSuggestion {
   reason: string;
 }
 
+export interface ProjectRelevance {
+  projectId: string;
+  relevant: boolean;
+  reason: string;
+}
+
 interface ResumeState {
   resume: ResumeData;
   aiSuggestions: AiSuggestion[];
@@ -64,6 +70,8 @@ interface ResumeState {
   analyzeError: string | null;
   providerKeys: Partial<Record<LlmProvider, string>>;
   selectedProvider: LlmProvider;
+  projectRelevance: ProjectRelevance[];
+  hiddenProjectIds: string[];
 
   setPersonalInfo: (info: Partial<PersonalInfo>) => void;
   setSummary: (summary: string) => void;
@@ -95,6 +103,9 @@ interface ResumeState {
   dismissSuggestion: (id: string) => void;
   setAnalyzing: (isAnalyzing: boolean) => void;
   setAnalyzeError: (error: string | null) => void;
+  setProjectRelevance: (raw: RawProjectRelevance[]) => void;
+  toggleProjectVisibility: (projectId: string) => void;
+  isProjectHidden: (projectId: string) => boolean;
 }
 
 export const useResumeStore = create<ResumeState>((set, get) => ({
@@ -105,6 +116,8 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
   analyzeError: null,
   providerKeys: {},
   selectedProvider: "anthropic",
+  projectRelevance: [],
+  hiddenProjectIds: [],
 
   setPersonalInfo: (info) =>
     set((state) => {
@@ -317,6 +330,31 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
     }),
 
   setSelectedProvider: (provider) => set({ selectedProvider: provider }),
+
+  setProjectRelevance: (raw) => {
+    const projects = get().resume.projects;
+    const projectRelevance: ProjectRelevance[] = raw
+      .map((r) => {
+        const project = projects[r.index];
+        if (!project) return null;
+        return { projectId: project.id, relevant: r.relevant, reason: r.reason };
+      })
+      .filter((r): r is ProjectRelevance => r !== null);
+
+    set({
+      projectRelevance,
+      hiddenProjectIds: projectRelevance.filter((r) => !r.relevant).map((r) => r.projectId),
+    });
+  },
+
+  toggleProjectVisibility: (projectId) =>
+    set((state) => ({
+      hiddenProjectIds: state.hiddenProjectIds.includes(projectId)
+        ? state.hiddenProjectIds.filter((id) => id !== projectId)
+        : [...state.hiddenProjectIds, projectId],
+    })),
+
+  isProjectHidden: (projectId) => get().hiddenProjectIds.includes(projectId),
 }));
 
 /**

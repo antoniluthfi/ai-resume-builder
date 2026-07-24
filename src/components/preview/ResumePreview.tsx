@@ -4,7 +4,9 @@ import { useResumeStore } from "@/store/resumeStore";
 
 export function ResumePreview() {
   const resume = useResumeStore((s) => s.resume);
-  const { personalInfo, summary, experience, education, skills, projects, certifications } = resume;
+  const hiddenProjectIds = useResumeStore((s) => s.hiddenProjectIds);
+  const { personalInfo, summary, experience, education, skills, certifications } = resume;
+  const projects = resume.projects.filter((p) => !hiddenProjectIds.includes(p.id));
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-8 text-sm text-gray-900 space-y-4">
@@ -101,6 +103,13 @@ export function ResumePreview() {
                   {entry.name} {entry.link && `(${entry.link})`}
                 </p>
                 <p>{entry.description}</p>
+                {(entry.bullets ?? []).filter(Boolean).length > 0 && (
+                  <ul className="list-disc list-inside">
+                    {(entry.bullets ?? []).filter(Boolean).map((bullet, i) => (
+                      <li key={i}>{bullet}</li>
+                    ))}
+                  </ul>
+                )}
               </div>
             ))}
           </div>

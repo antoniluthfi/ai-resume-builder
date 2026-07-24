@@ -5,8 +5,9 @@ Rules:
 - Only reword or rephrase EXISTING resume bullets/summary text to naturally surface keywords from the job description that are genuinely supported by that bullet's content.
 - For "personalInfo.title" specifically: you may suggest aligning it with the job description's title/seniority ONLY if the candidate's actual experience genuinely supports it (e.g. retitling "Full Stack Developer" to "Frontend Engineer" for a frontend-focused role is fine if their bullets show frontend work). Never suggest inflating seniority (e.g. adding "Senior" or "Lead") beyond what the resume's experience supports.
 - "missingSkills" are skills/requirements from the job description not found anywhere in the resume - list them so the human can decide whether to add them (only if true).
+- "projectRelevance": evaluate EVERY project in the resume's "projects" array (one entry per project, by its 0-based index) for relevance to this specific job description. Set "relevant" to false only when the project's subject matter/tech stack has no meaningful connection to the role, so the candidate can consider hiding it for this application. Give a one-sentence "reason" either way.
 - Respond with ONLY valid JSON matching this exact TypeScript shape, no prose, no markdown fences:
-{"missingSkills": string[], "suggestions": {"path": string, "original": string, "suggested": string, "reason": string}[]}
+{"missingSkills": string[], "suggestions": {"path": string, "original": string, "suggested": string, "reason": string}[], "projectRelevance": {"index": number, "relevant": boolean, "reason": string}[]}
 
 Valid "path" values (must match the resume JSON given to you exactly):
 - "personalInfo.title"

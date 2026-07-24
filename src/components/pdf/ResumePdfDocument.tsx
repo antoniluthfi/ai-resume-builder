@@ -110,6 +110,12 @@ export function ResumePdfDocument({ resume }: { resume: ResumeData }) {
                   {entry.name} {entry.link && `(${entry.link})`}
                 </Text>
                 <Text>{entry.description}</Text>
+                {(entry.bullets ?? []).filter(Boolean).map((bullet, i) => (
+                  <View key={i} style={styles.bullet}>
+                    <Text style={styles.bulletDot}>•</Text>
+                    <Text style={styles.bulletText}>{bullet}</Text>
+                  </View>
+                ))}
               </View>
             ))}
           </View>

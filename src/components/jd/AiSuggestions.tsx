@@ -36,6 +36,10 @@ export function AiSuggestions({ jobDescription }: { jobDescription: string }) {
   const dismissSuggestion = useResumeStore((s) => s.dismissSuggestion);
   const selectedProvider = useResumeStore((s) => s.selectedProvider);
   const apiKey = useResumeStore((s) => s.providerKeys[s.selectedProvider]) ?? "";
+  const setProjectRelevance = useResumeStore((s) => s.setProjectRelevance);
+  const projectRelevance = useResumeStore((s) => s.projectRelevance);
+  const hiddenProjectIds = useResumeStore((s) => s.hiddenProjectIds);
+  const toggleProjectVisibility = useResumeStore((s) => s.toggleProjectVisibility);
 
   async function handleEnhance() {
     if (!apiKey) return;
@@ -58,6 +62,7 @@ export function AiSuggestions({ jobDescription }: { jobDescription: string }) {
         }))
       );
       setAiMissingSkills(data.missingSkills ?? []);
+      setProjectRelevance(data.projectRelevance ?? []);
     } catch (error) {
       setAnalyzeError(error instanceof Error ? error.message : "Analysis failed");
     } finally {
@@ -91,6 +96,45 @@ export function AiSuggestions({ jobDescription }: { jobDescription: string }) {
                 {skill}
               </span>
             ))}
+          </div>
+        </div>
+      )}
+
+      {projectRelevance.length > 0 && (
+        <div>
+          <p className="text-xs font-medium text-gray-600 mb-1">Project relevance for this job:</p>
+          <div className="space-y-2">
+            {projectRelevance.map((pr) => {
+              const project = resume.projects.find((p) => p.id === pr.projectId);
+              if (!project) return null;
+              const hidden = hiddenProjectIds.includes(pr.projectId);
+              return (
+                <div
+                  key={pr.projectId}
+                  className="flex items-start justify-between gap-3 rounded-md border border-gray-100 p-2"
+                >
+                  <div>
+                    <p className="text-xs font-medium text-gray-800">
+                      {project.name || "Untitled project"}{" "}
+                      {pr.relevant ? (
+                        <span className="text-green-600">· Relevant</span>
+                      ) : (
+                        <span className="text-amber-600">· Maybe not relevant</span>
+                      )}
+                    </p>
+                    <p className="text-xs text-gray-500 italic">{pr.reason}</p>
+                  </div>
+                  <label className="flex shrink-0 items-center gap-1 text-xs text-gray-600">
+                    <input
+                      type="checkbox"
+                      checked={!hidden}
+                      onChange={() => toggleProjectVisibility(pr.projectId)}
+                    />
+                    Include
+                  </label>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
