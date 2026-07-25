@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { PlusCircleIcon as PlusCircle } from "@phosphor-icons/react/dist/ssr/PlusCircle";
 import { useResumeStore } from "@/store/resumeStore";
+import { useToastStore } from "@/store/toastStore";
 import { entryCardClass, inputClass, labelClass, removeButtonClass, smallButtonClass } from "@/lib/formStyles";
 import { ProjectEntry } from "@/types/resume";
 
@@ -10,6 +12,33 @@ export function ProjectsForm() {
   const addProject = useResumeStore((s) => s.addProject);
   const updateProject = useResumeStore((s) => s.updateProject);
   const removeProject = useResumeStore((s) => s.removeProject);
+  const selectedProvider = useResumeStore((s) => s.selectedProvider);
+  const apiKey = useResumeStore((s) => s.providerKeys[s.selectedProvider]) ?? "";
+  const showToast = useToastStore((s) => s.showToast);
+  const [generatingIds, setGeneratingIds] = useState<Record<string, boolean>>({});
+
+  async function generateDescription(entry: ProjectEntry) {
+    const url = (entry.links ?? []).find(Boolean);
+    if (!url || !apiKey) return;
+    setGeneratingIds((prev) => ({ ...prev, [entry.id]: true }));
+    try {
+      const response = await fetch("/api/generate-project-description", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url, provider: selectedProvider, apiKey }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error ?? "Description generation failed");
+      }
+      updateProject(entry.id, { description: data.description });
+      showToast("success", "Description generated");
+    } catch (error) {
+      showToast("error", error instanceof Error ? error.message : "Description generation failed");
+    } finally {
+      setGeneratingIds((prev) => ({ ...prev, [entry.id]: false }));
+    }
+  }
 
   function updateLink(entry: ProjectEntry, index: number, value: string) {
     const links = [...(entry.links ?? [])];
@@ -60,7 +89,18 @@ export function ProjectsForm() {
             />
           </div>
           <div>
-            <label className={labelClass}>Description</label>
+            <div className="flex items-center justify-between">
+              <label className={labelClass}>Description</label>
+              <button
+                className={smallButtonClass}
+                onClick={() => generateDescription(entry)}
+                disabled={
+                  generatingIds[entry.id] || !apiKey || !(entry.links ?? []).find(Boolean)
+                }
+              >
+                {generatingIds[entry.id] ? "Generating…" : "Generate from link"}
+              </button>
+            </div>
             <input
               className={inputClass}
               value={entry.description}

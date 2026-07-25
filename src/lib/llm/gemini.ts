@@ -5,6 +5,7 @@ import { AnalyzeJdResult, LlmClient, RawBulletIssue, RawBulletRewrite } from "./
 import {
   ANALYZE_JD_SYSTEM_PROMPT,
   COVER_LETTER_SYSTEM_PROMPT,
+  GENERATE_PROJECT_DESCRIPTION_SYSTEM_PROMPT,
   PARSE_RESUME_SYSTEM_PROMPT,
   REWRITE_BULLET_SYSTEM_PROMPT,
   extractJson,
@@ -116,9 +117,24 @@ async function rewriteBullets(
   return normalizeBulletRewrites(JSON.parse(extractJson(text)));
 }
 
+async function generateProjectDescription(apiKey: string, pageText: string): Promise<string> {
+  const gemini = new GoogleGenAI({ apiKey });
+
+  const response = await gemini.models.generateContent({
+    model: MODEL,
+    config: { systemInstruction: GENERATE_PROJECT_DESCRIPTION_SYSTEM_PROMPT },
+    contents: [{ role: "user", parts: [{ text: pageText }] }],
+  });
+
+  const text = response.text;
+  if (!text) throw new Error("No text response from Gemini");
+  return text.trim();
+}
+
 export const geminiClient: LlmClient = {
   analyzeJobMatch,
   parseResumeFromPdf,
   generateCoverLetter,
   rewriteBullets,
+  generateProjectDescription,
 };

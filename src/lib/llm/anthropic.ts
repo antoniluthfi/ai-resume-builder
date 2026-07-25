@@ -5,6 +5,7 @@ import { AnalyzeJdResult, LlmClient, RawBulletIssue, RawBulletRewrite } from "./
 import {
   ANALYZE_JD_SYSTEM_PROMPT,
   COVER_LETTER_SYSTEM_PROMPT,
+  GENERATE_PROJECT_DESCRIPTION_SYSTEM_PROMPT,
   PARSE_RESUME_SYSTEM_PROMPT,
   REWRITE_BULLET_SYSTEM_PROMPT,
   extractJson,
@@ -126,9 +127,28 @@ async function rewriteBullets(
   return normalizeBulletRewrites(JSON.parse(extractJson(textBlock.text)));
 }
 
+async function generateProjectDescription(apiKey: string, pageText: string): Promise<string> {
+  const anthropic = new Anthropic({ apiKey });
+
+  const message = await anthropic.messages.create({
+    model: MODEL,
+    max_tokens: 256,
+    system: GENERATE_PROJECT_DESCRIPTION_SYSTEM_PROMPT,
+    messages: [{ role: "user", content: pageText }],
+  });
+
+  const textBlock = message.content.find((block) => block.type === "text");
+  if (!textBlock || textBlock.type !== "text") {
+    throw new Error("No text response from Claude");
+  }
+
+  return textBlock.text.trim();
+}
+
 export const anthropicClient: LlmClient = {
   analyzeJobMatch,
   parseResumeFromPdf,
   generateCoverLetter,
   rewriteBullets,
+  generateProjectDescription,
 };

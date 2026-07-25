@@ -66,6 +66,14 @@ Rules:
 - Respond with ONLY valid JSON matching this exact TypeScript shape, no prose, no markdown fences:
 {"rewrites": {"path": string, "original": string, "suggested": string, "reason": string, "needsUserInput": boolean}[]}`;
 
+export const GENERATE_PROJECT_DESCRIPTION_SYSTEM_PROMPT = `You write a single, concise resume project description from a webpage's title and meta description (scraped from its Play Store, App Store, or website listing).
+
+Rules:
+- Base the description ONLY on the page title/description text given to you. Never invent features, user counts, awards, or claims not present in that text.
+- Describe factually what the product/app/project IS and does - not marketing hype or superlatives ("revolutionary", "best-in-class"), not first person ("I built..."), just what it is.
+- One sentence, no more than about 25 words.
+- Respond with ONLY the description text - no quotes, no prose about what you did, no markdown.`;
+
 export function extractJson(text: string): string {
   const trimmed = text.trim();
   const start = trimmed.indexOf("{");

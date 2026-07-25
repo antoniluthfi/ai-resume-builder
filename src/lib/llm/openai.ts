@@ -5,6 +5,7 @@ import { AnalyzeJdResult, LlmClient, RawBulletIssue, RawBulletRewrite } from "./
 import {
   ANALYZE_JD_SYSTEM_PROMPT,
   COVER_LETTER_SYSTEM_PROMPT,
+  GENERATE_PROJECT_DESCRIPTION_SYSTEM_PROMPT,
   PARSE_RESUME_SYSTEM_PROMPT,
   REWRITE_BULLET_SYSTEM_PROMPT,
   extractJson,
@@ -106,9 +107,22 @@ async function rewriteBullets(
   return normalizeBulletRewrites(JSON.parse(extractJson(response.output_text)));
 }
 
+async function generateProjectDescription(apiKey: string, pageText: string): Promise<string> {
+  const openai = new OpenAI({ apiKey });
+
+  const response = await openai.responses.create({
+    model: MODEL,
+    instructions: GENERATE_PROJECT_DESCRIPTION_SYSTEM_PROMPT,
+    input: [{ role: "user", content: pageText }],
+  });
+
+  return response.output_text.trim();
+}
+
 export const openaiClient: LlmClient = {
   analyzeJobMatch,
   parseResumeFromPdf,
   generateCoverLetter,
   rewriteBullets,
+  generateProjectDescription,
 };

@@ -67,6 +67,7 @@ export interface LlmClient {
   parseResumeFromPdf(apiKey: string, base64Pdf: string): Promise<ParsedResumeData>;
   generateCoverLetter(apiKey: string, resume: ResumeData, jobDescription: string): Promise<string>;
   rewriteBullets(apiKey: string, resume: ResumeData, issues: RawBulletIssue[]): Promise<RawBulletRewrite[]>;
+  generateProjectDescription(apiKey: string, pageText: string): Promise<string>;
 }
 
 export function isLlmProvider(value: unknown): value is LlmProvider {
