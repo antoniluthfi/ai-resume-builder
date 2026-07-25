@@ -29,12 +29,12 @@ function checkBullet(text: string): string[] {
   const weakMatch = WEAK_START_PATTERNS.find(({ pattern }) => pattern.test(trimmed));
   if (weakMatch) {
     problems.push(
-      `Starts with a weak phrase ("${weakMatch.label}") — try a strong action verb like "Led", "Built", or "Reduced" instead.`
+      `Starts with "${weakMatch.label}", which can read as passive — a strong action verb like "Led", "Built", or "Reduced" may land stronger.`
     );
   }
 
   if (/^(i|my)\b/i.test(trimmed)) {
-    problems.push(`Avoid personal pronouns ("I", "My") — resume bullets are implied first-person.`);
+    problems.push(`Resume bullets are usually written without "I"/"My" since first person is implied — you may want to drop it.`);
   }
 
   if (!/\d/.test(trimmed) && !trimmed.includes("%")) {
