@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useMemo } from "react";
 import { FileArrowDownIcon as FileArrowDown } from "@phosphor-icons/react/dist/ssr/FileArrowDown";
 import { useResumeStore } from "@/store/resumeStore";
 import { ResumePdfDocument } from "./ResumePdfDocument";
@@ -25,13 +26,16 @@ export function PdfDownloadButton() {
   const hiddenProjectIds = useResumeStore((s) => s.hiddenProjectIds);
   const fileName = `${resume.personalInfo.name || "resume"}.pdf`.replace(/\s+/g, "_");
 
-  const exportResume = {
-    ...resume,
-    projects: resume.projects.filter((p) => !hiddenProjectIds.includes(p.id)),
-  };
+  const pdfDocument = useMemo(() => {
+    const exportResume = {
+      ...resume,
+      projects: resume.projects.filter((p) => !hiddenProjectIds.includes(p.id)),
+    };
+    return <ResumePdfDocument resume={exportResume} />;
+  }, [resume, hiddenProjectIds]);
 
   return (
-    <PDFDownloadLink document={<ResumePdfDocument resume={exportResume} />} fileName={fileName}>
+    <PDFDownloadLink document={pdfDocument} fileName={fileName}>
       {({ loading }) => (
         <span className={primaryButtonClass}>
           <FileArrowDown size={16} weight="bold" />
