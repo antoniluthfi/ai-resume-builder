@@ -11,11 +11,9 @@ export function PreviewPane() {
 
   return (
     <>
-      <aside className="hidden min-w-0 lg:block">
-        <div className="sticky top-20 max-h-[calc(100dvh-6rem)] space-y-4 overflow-y-auto pb-6">
-          <ResumePreview />
-          <QualityChecklist />
-        </div>
+      <aside className="hidden min-w-0 space-y-4 pb-6 lg:block">
+        <ResumePreview />
+        <QualityChecklist />
       </aside>
 
       <button
