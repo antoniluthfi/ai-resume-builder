@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getLlmClient } from "@/lib/llm";
 import { isLlmProvider } from "@/lib/llm/types";
+import { friendlyLlmErrorMessage } from "@/lib/llm/errorMessage";
 
 const MAX_FILE_BYTES = 8 * 1024 * 1024;
 
@@ -41,7 +42,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(parsed);
   } catch (error) {
     console.error("parse-resume failed", error);
-    const message = error instanceof Error ? error.message : "Resume parsing failed";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json(
+      { error: friendlyLlmErrorMessage(error, "Resume parsing failed") },
+      { status: 500 }
+    );
   }
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getLlmClient } from "@/lib/llm";
 import { isLlmProvider, RawBulletIssue } from "@/lib/llm/types";
+import { friendlyLlmErrorMessage } from "@/lib/llm/errorMessage";
 import { ResumeData } from "@/types/resume";
 
 interface RewriteBulletsRequestBody {
@@ -39,7 +40,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ rewrites: result });
   } catch (error) {
     console.error("rewrite-bullets failed", error);
-    const message = error instanceof Error ? error.message : "Rewrite failed";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: friendlyLlmErrorMessage(error, "Rewrite failed") }, { status: 500 });
   }
 }

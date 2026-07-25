@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getLlmClient } from "@/lib/llm";
 import { isLlmProvider } from "@/lib/llm/types";
+import { friendlyLlmErrorMessage } from "@/lib/llm/errorMessage";
 import { ResumeData } from "@/types/resume";
 
 interface CoverLetterRequestBody {
@@ -39,7 +40,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ coverLetter });
   } catch (error) {
     console.error("cover-letter failed", error);
-    const message = error instanceof Error ? error.message : "Cover letter generation failed";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json(
+      { error: friendlyLlmErrorMessage(error, "Cover letter generation failed") },
+      { status: 500 }
+    );
   }
 }
