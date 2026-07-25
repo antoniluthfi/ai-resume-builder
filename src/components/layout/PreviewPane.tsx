@@ -11,7 +11,7 @@ export function PreviewPane() {
 
   return (
     <>
-      <aside className="hidden shrink-0 lg:block lg:w-[420px] xl:w-[460px]">
+      <aside className="hidden min-w-0 lg:block">
         <div className="sticky top-20 max-h-[calc(100dvh-6rem)] space-y-4 overflow-y-auto pb-6">
           <ResumePreview />
           <QualityChecklist />

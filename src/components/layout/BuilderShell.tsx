@@ -15,8 +15,8 @@ export function BuilderShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-slate-50">
       <AppHeader />
-      <main className="mx-auto flex max-w-[1680px] flex-col gap-6 px-4 py-6 sm:px-6 lg:flex-row lg:items-start">
-        <div className="min-w-0 flex-1 space-y-4">{children}</div>
+      <main className="mx-auto flex max-w-[1680px] flex-col gap-6 px-4 py-6 sm:px-6 lg:grid lg:grid-cols-2 lg:items-start lg:gap-8">
+        <div className="min-w-0 space-y-4">{children}</div>
         <PreviewPane />
       </main>
     </div>
