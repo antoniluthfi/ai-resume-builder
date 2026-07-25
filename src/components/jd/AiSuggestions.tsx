@@ -85,11 +85,11 @@ export function AiSuggestions({ jobDescription }: { jobDescription: string }) {
         </button>
       </div>
 
-      {analyzeError && <p className="text-xs text-red-600">{analyzeError}</p>}
+      {analyzeError && <p className="text-xs text-rose-600">{analyzeError}</p>}
 
       {aiMissingSkills.length > 0 && (
         <div>
-          <p className="text-xs font-medium text-gray-600 mb-1">
+          <p className="text-xs font-medium text-slate-600 mb-1">
             Skills the job description asks for that aren&apos;t on your list:
           </p>
           <div className="space-y-2">
@@ -99,18 +99,18 @@ export function AiSuggestions({ jobDescription }: { jobDescription: string }) {
               return (
                 <div
                   key={m.skill}
-                  className={`rounded-md border p-2 ${
-                    confidentlyImplied ? "border-blue-100 bg-blue-50/40" : "border-gray-100"
+                  className={`rounded-lg border p-2 ${
+                    confidentlyImplied ? "border-blue-100 bg-blue-50/40" : "border-slate-100"
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <p className="text-xs font-medium text-gray-800">
+                    <p className="text-xs font-medium text-slate-800">
                       {m.skill}
                       {confidentlyImplied && <span className="text-blue-600"> · Implied by your skills</span>}
                     </p>
                     {confidentlyImplied &&
                       (alreadyAdded ? (
-                        <span className="shrink-0 text-xs text-green-600">Added</span>
+                        <span className="shrink-0 text-xs text-emerald-600">Added</span>
                       ) : (
                         <button
                           className={`shrink-0 ${smallButtonClass}`}
@@ -123,7 +123,7 @@ export function AiSuggestions({ jobDescription }: { jobDescription: string }) {
                         </button>
                       ))}
                   </div>
-                  <p className="text-xs text-gray-500 italic">{m.reason}</p>
+                  <p className="text-xs text-slate-500 italic">{m.reason}</p>
                   {confidentlyImplied && (
                     <p className="text-xs text-blue-600">Implied by: {m.impliedBy.join(", ")}</p>
                   )}
@@ -136,7 +136,7 @@ export function AiSuggestions({ jobDescription }: { jobDescription: string }) {
 
       {projectRelevance.length > 0 && (
         <div>
-          <p className="text-xs font-medium text-gray-600 mb-1">Project relevance for this job:</p>
+          <p className="text-xs font-medium text-slate-600 mb-1">Project relevance for this job:</p>
           <div className="space-y-2">
             {projectRelevance.map((pr) => {
               const project = resume.projects.find((p) => p.id === pr.projectId);
@@ -145,20 +145,20 @@ export function AiSuggestions({ jobDescription }: { jobDescription: string }) {
               return (
                 <div
                   key={pr.projectId}
-                  className="flex items-start justify-between gap-3 rounded-md border border-gray-100 p-2"
+                  className="flex items-start justify-between gap-3 rounded-lg border border-slate-100 p-2"
                 >
                   <div>
-                    <p className="text-xs font-medium text-gray-800">
+                    <p className="text-xs font-medium text-slate-800">
                       {project.name || "Untitled project"}{" "}
                       {pr.relevant ? (
-                        <span className="text-green-600">· Relevant</span>
+                        <span className="text-emerald-600">· Relevant</span>
                       ) : (
                         <span className="text-amber-600">· Maybe not relevant</span>
                       )}
                     </p>
-                    <p className="text-xs text-gray-500 italic">{pr.reason}</p>
+                    <p className="text-xs text-slate-500 italic">{pr.reason}</p>
                   </div>
-                  <label className="flex shrink-0 items-center gap-1 text-xs text-gray-600">
+                  <label className="flex shrink-0 items-center gap-1 text-xs text-slate-600">
                     <input
                       type="checkbox"
                       checked={!hidden}
@@ -175,11 +175,11 @@ export function AiSuggestions({ jobDescription }: { jobDescription: string }) {
 
       <div className="space-y-3">
         {aiSuggestions.map((s) => (
-          <div key={s.id} className="rounded-md border border-gray-100 p-3 space-y-2">
-            <p className="text-xs text-gray-500">{describeSuggestionPath(s.path)}</p>
-            <p className="text-sm line-through text-gray-400">{s.original}</p>
-            <p className="text-sm text-gray-900">{s.suggested}</p>
-            <p className="text-xs text-gray-500 italic">{s.reason}</p>
+          <div key={s.id} className="rounded-lg border border-slate-100 p-3 space-y-2">
+            <p className="text-xs text-slate-500">{describeSuggestionPath(s.path)}</p>
+            <p className="text-sm line-through text-slate-400">{s.original}</p>
+            <p className="text-sm text-slate-900">{s.suggested}</p>
+            <p className="text-xs text-slate-500 italic">{s.reason}</p>
             <div className="flex gap-3">
               <button className={smallButtonClass} onClick={() => applySuggestion(s.id)}>
                 Apply

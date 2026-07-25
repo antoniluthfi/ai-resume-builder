@@ -93,15 +93,15 @@ export function VersionsPanel() {
       <div>
         <p className={labelClass}>Saved versions</p>
         {versions.length === 0 ? (
-          <p className="text-xs text-gray-400">No versions saved yet.</p>
+          <p className="text-xs text-slate-400">No versions saved yet.</p>
         ) : (
           <div className="space-y-2">
             {versions.map((v) => (
-              <div key={v.id} className="rounded-md border border-gray-100 p-2">
-                <p className="text-xs font-medium text-gray-800">{v.name}</p>
-                <p className="text-[11px] text-gray-400">{formatDate(v.createdAt)}</p>
+              <div key={v.id} className="rounded-lg border border-slate-100 p-2">
+                <p className="text-xs font-medium text-slate-800">{v.name}</p>
+                <p className="text-[11px] text-slate-400">{formatDate(v.createdAt)}</p>
                 {v.jobDescription && (
-                  <p className="mt-1 line-clamp-2 text-xs text-gray-500 italic">{v.jobDescription}</p>
+                  <p className="mt-1 line-clamp-2 text-xs text-slate-500 italic">{v.jobDescription}</p>
                 )}
                 <div className="mt-2 flex gap-3">
                   <button className={smallButtonClass} onClick={() => loadVersion(v.id)}>
@@ -117,7 +117,7 @@ export function VersionsPanel() {
         )}
       </div>
 
-      <div className="border-t border-gray-100 pt-4">
+      <div className="border-t border-slate-100 pt-4">
         <p className={labelClass}>Backup</p>
         <div className="flex gap-3">
           <button className={smallButtonClass} onClick={handleExport}>
@@ -128,8 +128,8 @@ export function VersionsPanel() {
           </button>
           <input ref={fileInputRef} type="file" accept="application/json" className="hidden" onChange={handleImportFile} />
         </div>
-        {importError && <p className="mt-1 text-xs text-red-600">{importError}</p>}
-        <p className="mt-2 text-[11px] text-gray-400">
+        {importError && <p className="mt-1 text-xs text-rose-600">{importError}</p>}
+        <p className="mt-2 text-[11px] text-slate-400">
           Backup includes your resume and saved versions only — never your API keys.
         </p>
       </div>

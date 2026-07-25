@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useResumeStore } from "@/store/resumeStore";
 import { ALL_PROVIDERS, LlmProvider, PROVIDER_KEY_PLACEHOLDER, PROVIDER_LABELS } from "@/lib/llm/types";
-import { inputClass, labelClass } from "@/lib/formStyles";
+import { inputClass, labelClass, smallButtonClass } from "@/lib/formStyles";
 
 export function ProviderSettings() {
   const selectedProvider = useResumeStore((s) => s.selectedProvider);
@@ -43,7 +43,7 @@ export function ProviderSettings() {
           />
           <button
             type="button"
-            className="shrink-0 text-xs font-medium text-blue-600 hover:text-blue-800"
+            className={`shrink-0 ${smallButtonClass}`}
             onClick={() => setShowKey((v) => !v)}
           >
             {showKey ? "Hide" : "Show"}
@@ -51,7 +51,7 @@ export function ProviderSettings() {
         </div>
       </div>
 
-      <p className="text-[11px] text-gray-400">
+      <p className="text-[11px] text-slate-400">
         Your key stays in your browser and is only sent to power your own requests — never stored on our servers.
         Each provider&apos;s key is remembered separately.
       </p>

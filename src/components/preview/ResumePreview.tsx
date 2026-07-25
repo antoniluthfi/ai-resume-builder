@@ -9,25 +9,25 @@ export function ResumePreview() {
   const projects = resume.projects.filter((p) => !hiddenProjectIds.includes(p.id));
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-8 text-sm text-gray-900 space-y-4">
+    <div className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-900 space-y-4 sm:p-8 [box-shadow:var(--shadow-card)]">
       <div>
         <h1 className="text-xl font-bold">{personalInfo.name || "Your Name"}</h1>
         {personalInfo.title && (
-          <p className="text-sm font-medium text-gray-700">{personalInfo.title}</p>
+          <p className="text-sm font-medium text-slate-700">{personalInfo.title}</p>
         )}
-        <p className="text-xs text-gray-600">
+        <p className="text-xs text-slate-600">
           {[personalInfo.email, personalInfo.phone, personalInfo.location]
             .filter(Boolean)
             .join(" · ")}
         </p>
-        <p className="text-xs text-gray-600">
+        <p className="text-xs text-slate-600">
           {[personalInfo.linkedin, personalInfo.website].filter(Boolean).join(" · ")}
         </p>
       </div>
 
       {summary && (
         <section>
-          <h2 className="text-xs font-bold uppercase tracking-wide border-b border-gray-300 pb-1 mb-2">
+          <h2 className="text-xs font-bold uppercase tracking-wide border-b border-slate-300 pb-1 mb-2">
             Summary
           </h2>
           <p>{summary}</p>
@@ -36,7 +36,7 @@ export function ResumePreview() {
 
       {experience.length > 0 && (
         <section>
-          <h2 className="text-xs font-bold uppercase tracking-wide border-b border-gray-300 pb-1 mb-2">
+          <h2 className="text-xs font-bold uppercase tracking-wide border-b border-slate-300 pb-1 mb-2">
             Experience
           </h2>
           <div className="space-y-3">
@@ -46,11 +46,11 @@ export function ResumePreview() {
                   <span>
                     {entry.title || "Job title"} — {entry.company || "Company"}
                   </span>
-                  <span className="text-xs text-gray-600">
+                  <span className="text-xs text-slate-600">
                     {entry.startDate} – {entry.endDate || "Present"}
                   </span>
                 </div>
-                {entry.location && <p className="text-xs text-gray-600">{entry.location}</p>}
+                {entry.location && <p className="text-xs text-slate-600">{entry.location}</p>}
                 <ul className="list-disc list-inside">
                   {entry.bullets.filter(Boolean).map((bullet, i) => (
                     <li key={i}>{bullet}</li>
@@ -64,7 +64,7 @@ export function ResumePreview() {
 
       {education.length > 0 && (
         <section>
-          <h2 className="text-xs font-bold uppercase tracking-wide border-b border-gray-300 pb-1 mb-2">
+          <h2 className="text-xs font-bold uppercase tracking-wide border-b border-slate-300 pb-1 mb-2">
             Education
           </h2>
           <div className="space-y-2">
@@ -73,7 +73,7 @@ export function ResumePreview() {
                 <span>
                   {entry.degree} {entry.field && `in ${entry.field}`} — {entry.school}
                 </span>
-                <span className="text-xs text-gray-600">
+                <span className="text-xs text-slate-600">
                   {entry.startDate} – {entry.endDate}
                 </span>
               </div>
@@ -84,7 +84,7 @@ export function ResumePreview() {
 
       {skills.length > 0 && (
         <section>
-          <h2 className="text-xs font-bold uppercase tracking-wide border-b border-gray-300 pb-1 mb-2">
+          <h2 className="text-xs font-bold uppercase tracking-wide border-b border-slate-300 pb-1 mb-2">
             Skills
           </h2>
           <p>{skills.join(", ")}</p>
@@ -93,7 +93,7 @@ export function ResumePreview() {
 
       {projects.length > 0 && (
         <section>
-          <h2 className="text-xs font-bold uppercase tracking-wide border-b border-gray-300 pb-1 mb-2">
+          <h2 className="text-xs font-bold uppercase tracking-wide border-b border-slate-300 pb-1 mb-2">
             Projects
           </h2>
           <div className="space-y-2">
@@ -118,7 +118,7 @@ export function ResumePreview() {
 
       {certifications.length > 0 && (
         <section>
-          <h2 className="text-xs font-bold uppercase tracking-wide border-b border-gray-300 pb-1 mb-2">
+          <h2 className="text-xs font-bold uppercase tracking-wide border-b border-slate-300 pb-1 mb-2">
             Certifications
           </h2>
           <div className="space-y-1">
@@ -127,7 +127,7 @@ export function ResumePreview() {
                 <span>
                   {entry.name} {entry.issuer && `— ${entry.issuer}`}
                 </span>
-                <span className="text-xs text-gray-600">{entry.date}</span>
+                <span className="text-xs text-slate-600">{entry.date}</span>
               </div>
             ))}
           </div>

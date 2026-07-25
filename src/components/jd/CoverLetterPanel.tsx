@@ -72,7 +72,7 @@ export function CoverLetterPanel({ jobDescription }: { jobDescription: string })
         </button>
       </div>
 
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-rose-600">{error}</p>}
 
       {coverLetter && (
         <div className="space-y-2">
@@ -91,8 +91,8 @@ export function CoverLetterPanel({ jobDescription }: { jobDescription: string })
             </button>
           </div>
 
-          <div className="rounded-md border border-gray-100 p-3 space-y-2">
-            <label className="block text-xs font-medium text-gray-600">Send via email</label>
+          <div className="rounded-lg border border-slate-100 p-3 space-y-2">
+            <label className="block text-xs font-medium text-slate-600">Send via email</label>
             <div className="flex gap-2">
               <input
                 type="email"
@@ -109,7 +109,7 @@ export function CoverLetterPanel({ jobDescription }: { jobDescription: string })
                 Compose Email
               </button>
             </div>
-            <p className="text-[11px] text-gray-400">
+            <p className="text-[11px] text-slate-400">
               Opens your default email app with the subject and this letter filled in. Browsers can&apos;t
               attach files automatically — remember to attach your downloaded PDF/DOCX in the compose
               window that opens.

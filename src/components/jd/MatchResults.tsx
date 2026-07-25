@@ -1,12 +1,18 @@
 "use client";
 
 import { MatchResult } from "@/lib/keywordExtractor";
-import { sectionClass, sectionTitleClass } from "@/lib/formStyles";
+import { sectionClass, sectionTitleClass, tagClass } from "@/lib/formStyles";
 
 function scoreColor(percentage: number) {
-  if (percentage >= 70) return "text-green-600";
+  if (percentage >= 70) return "text-emerald-600";
   if (percentage >= 40) return "text-amber-600";
-  return "text-red-600";
+  return "text-rose-600";
+}
+
+function scoreBarColor(percentage: number) {
+  if (percentage >= 70) return "bg-emerald-500";
+  if (percentage >= 40) return "bg-amber-500";
+  return "bg-rose-500";
 }
 
 export function MatchResults({ result }: { result: MatchResult | null }) {
@@ -21,15 +27,19 @@ export function MatchResults({ result }: { result: MatchResult | null }) {
         </span>
       </div>
 
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+        <div
+          className={`h-full rounded-full transition-[width] duration-500 ${scoreBarColor(result.matchPercentage)}`}
+          style={{ width: `${Math.min(100, Math.max(0, result.matchPercentage))}%` }}
+        />
+      </div>
+
       {result.matched.length > 0 && (
         <div>
-          <p className="text-xs font-medium text-gray-600 mb-1">Matched ({result.matched.length})</p>
+          <p className="text-xs font-medium text-slate-600 mb-1">Matched ({result.matched.length})</p>
           <div className="flex flex-wrap gap-1">
             {result.matched.map((keyword) => (
-              <span
-                key={keyword}
-                className="rounded-full bg-green-50 px-2 py-0.5 text-xs text-green-700"
-              >
+              <span key={keyword} className={`bg-emerald-50 text-emerald-700 ${tagClass}`}>
                 {keyword}
               </span>
             ))}
@@ -39,13 +49,10 @@ export function MatchResults({ result }: { result: MatchResult | null }) {
 
       {result.missing.length > 0 && (
         <div>
-          <p className="text-xs font-medium text-gray-600 mb-1">Missing ({result.missing.length})</p>
+          <p className="text-xs font-medium text-slate-600 mb-1">Missing ({result.missing.length})</p>
           <div className="flex flex-wrap gap-1">
             {result.missing.map((keyword) => (
-              <span
-                key={keyword}
-                className="rounded-full bg-red-50 px-2 py-0.5 text-xs text-red-700"
-              >
+              <span key={keyword} className={`bg-rose-50 text-rose-700 ${tagClass}`}>
                 {keyword}
               </span>
             ))}
