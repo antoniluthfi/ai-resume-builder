@@ -1,14 +1,15 @@
 import "server-only";
 import { GoogleGenAI } from "@google/genai";
 import { ParsedResumeData, ResumeData } from "@/types/resume";
-import { AnalyzeJdResult, LlmClient } from "./types";
+import { AnalyzeJdResult, LlmClient, RawBulletIssue, RawBulletRewrite } from "./types";
 import {
   ANALYZE_JD_SYSTEM_PROMPT,
   COVER_LETTER_SYSTEM_PROMPT,
   PARSE_RESUME_SYSTEM_PROMPT,
+  REWRITE_BULLET_SYSTEM_PROMPT,
   extractJson,
 } from "./prompts";
-import { normalizeAnalyzeResult, normalizeParsedResume } from "./normalize";
+import { normalizeAnalyzeResult, normalizeBulletRewrites, normalizeParsedResume } from "./normalize";
 
 const MODEL = "gemini-flash-latest";
 
@@ -88,4 +89,36 @@ async function generateCoverLetter(
   return text.trim();
 }
 
-export const geminiClient: LlmClient = { analyzeJobMatch, parseResumeFromPdf, generateCoverLetter };
+async function rewriteBullets(
+  apiKey: string,
+  resume: ResumeData,
+  issues: RawBulletIssue[]
+): Promise<RawBulletRewrite[]> {
+  const gemini = new GoogleGenAI({ apiKey });
+
+  const response = await gemini.models.generateContent({
+    model: MODEL,
+    config: { systemInstruction: REWRITE_BULLET_SYSTEM_PROMPT, responseMimeType: "application/json" },
+    contents: [
+      {
+        role: "user",
+        parts: [
+          {
+            text: `RESUME JSON:\n${JSON.stringify(resume, null, 2)}\n\nFLAGGED BULLETS:\n${JSON.stringify(issues, null, 2)}`,
+          },
+        ],
+      },
+    ],
+  });
+
+  const text = response.text;
+  if (!text) throw new Error("No text response from Gemini");
+  return normalizeBulletRewrites(JSON.parse(extractJson(text)));
+}
+
+export const geminiClient: LlmClient = {
+  analyzeJobMatch,
+  parseResumeFromPdf,
+  generateCoverLetter,
+  rewriteBullets,
+};

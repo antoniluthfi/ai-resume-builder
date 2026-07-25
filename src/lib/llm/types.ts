@@ -48,10 +48,25 @@ export interface AnalyzeJdResult {
   keywordMatch: RawKeywordMatch;
 }
 
+export interface RawBulletIssue {
+  path: string;
+  text: string;
+  problems: string[];
+}
+
+export interface RawBulletRewrite {
+  path: string;
+  original: string;
+  suggested: string;
+  reason: string;
+  needsUserInput: boolean;
+}
+
 export interface LlmClient {
   analyzeJobMatch(apiKey: string, resume: ResumeData, jobDescription: string): Promise<AnalyzeJdResult>;
   parseResumeFromPdf(apiKey: string, base64Pdf: string): Promise<ParsedResumeData>;
   generateCoverLetter(apiKey: string, resume: ResumeData, jobDescription: string): Promise<string>;
+  rewriteBullets(apiKey: string, resume: ResumeData, issues: RawBulletIssue[]): Promise<RawBulletRewrite[]>;
 }
 
 export function isLlmProvider(value: unknown): value is LlmProvider {

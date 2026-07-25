@@ -54,6 +54,17 @@ Then write the letter:
 - Do not include a letterhead, date, or postal address block - just the greeting, body paragraphs, and closing.
 - Respond with ONLY the cover letter text (greeting through closing signature), no prose about what you did, no markdown fences, no JSON.`;
 
+export const REWRITE_BULLET_SYSTEM_PROMPT = `You rewrite specific resume bullets that a local style checker flagged as weak, for a job seeker who will use your rewrite as-is on their real resume.
+
+Rules:
+- Never invent employers, skills, tools, achievements, or facts not already present in that bullet or elsewhere in the resume JSON provided for context. Being polished must never mean being dishonest.
+- For bullets flagged only for style problems (weak passive opener like "responsible for"/"helped with", starting with "I"/"My", being too short or too long) - rewrite freely for clarity and impact, using ONLY the facts already stated in that bullet. A stronger action verb and tighter phrasing are fine; new claims are not.
+- For a bullet flagged for missing a number/metric specifically: you MUST NOT invent a number, percentage, dollar amount, count, or timeframe that isn't already evidenced somewhere in the resume for that same fact. Instead, rewrite the bullet to lead with a strong action verb and insert a short bracketed placeholder exactly where a real metric would go, e.g. "Led migration to microservices, cutting deploy time by [add %/time saved]". Set "needsUserInput" to true for that item so the human knows to fill in a real number before using it. If the metric flag is the ONLY problem and you cannot improve anything else about the bullet without a real number, you may still return a placeholder rewrite as described.
+- Only return an item for a path if you have an actual improvement; skip paths that are already fine.
+- Keep "suggested" roughly the same length/tone as "original".
+- Respond with ONLY valid JSON matching this exact TypeScript shape, no prose, no markdown fences:
+{"rewrites": {"path": string, "original": string, "suggested": string, "reason": string, "needsUserInput": boolean}[]}`;
+
 export function extractJson(text: string): string {
   const trimmed = text.trim();
   const start = trimmed.indexOf("{");

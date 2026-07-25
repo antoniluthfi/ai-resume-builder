@@ -1,14 +1,15 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { ParsedResumeData, ResumeData } from "@/types/resume";
-import { AnalyzeJdResult, LlmClient } from "./types";
+import { AnalyzeJdResult, LlmClient, RawBulletIssue, RawBulletRewrite } from "./types";
 import {
   ANALYZE_JD_SYSTEM_PROMPT,
   COVER_LETTER_SYSTEM_PROMPT,
   PARSE_RESUME_SYSTEM_PROMPT,
+  REWRITE_BULLET_SYSTEM_PROMPT,
   extractJson,
 } from "./prompts";
-import { normalizeAnalyzeResult, normalizeParsedResume } from "./normalize";
+import { normalizeAnalyzeResult, normalizeBulletRewrites, normalizeParsedResume } from "./normalize";
 
 const MODEL = "claude-haiku-4-5-20251001";
 
@@ -98,4 +99,36 @@ async function generateCoverLetter(
   return textBlock.text.trim();
 }
 
-export const anthropicClient: LlmClient = { analyzeJobMatch, parseResumeFromPdf, generateCoverLetter };
+async function rewriteBullets(
+  apiKey: string,
+  resume: ResumeData,
+  issues: RawBulletIssue[]
+): Promise<RawBulletRewrite[]> {
+  const anthropic = new Anthropic({ apiKey });
+
+  const message = await anthropic.messages.create({
+    model: MODEL,
+    max_tokens: 2048,
+    system: REWRITE_BULLET_SYSTEM_PROMPT,
+    messages: [
+      {
+        role: "user",
+        content: `RESUME JSON:\n${JSON.stringify(resume, null, 2)}\n\nFLAGGED BULLETS:\n${JSON.stringify(issues, null, 2)}`,
+      },
+    ],
+  });
+
+  const textBlock = message.content.find((block) => block.type === "text");
+  if (!textBlock || textBlock.type !== "text") {
+    throw new Error("No text response from Claude");
+  }
+
+  return normalizeBulletRewrites(JSON.parse(extractJson(textBlock.text)));
+}
+
+export const anthropicClient: LlmClient = {
+  analyzeJobMatch,
+  parseResumeFromPdf,
+  generateCoverLetter,
+  rewriteBullets,
+};

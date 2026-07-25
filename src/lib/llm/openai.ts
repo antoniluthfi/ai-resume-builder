@@ -1,14 +1,15 @@
 import "server-only";
 import OpenAI from "openai";
 import { ParsedResumeData, ResumeData } from "@/types/resume";
-import { AnalyzeJdResult, LlmClient } from "./types";
+import { AnalyzeJdResult, LlmClient, RawBulletIssue, RawBulletRewrite } from "./types";
 import {
   ANALYZE_JD_SYSTEM_PROMPT,
   COVER_LETTER_SYSTEM_PROMPT,
   PARSE_RESUME_SYSTEM_PROMPT,
+  REWRITE_BULLET_SYSTEM_PROMPT,
   extractJson,
 } from "./prompts";
-import { normalizeAnalyzeResult, normalizeParsedResume } from "./normalize";
+import { normalizeAnalyzeResult, normalizeBulletRewrites, normalizeParsedResume } from "./normalize";
 
 const MODEL = "gpt-5.4-mini";
 
@@ -83,4 +84,31 @@ async function generateCoverLetter(
   return response.output_text.trim();
 }
 
-export const openaiClient: LlmClient = { analyzeJobMatch, parseResumeFromPdf, generateCoverLetter };
+async function rewriteBullets(
+  apiKey: string,
+  resume: ResumeData,
+  issues: RawBulletIssue[]
+): Promise<RawBulletRewrite[]> {
+  const openai = new OpenAI({ apiKey });
+
+  const response = await openai.responses.create({
+    model: MODEL,
+    instructions: REWRITE_BULLET_SYSTEM_PROMPT,
+    text: { format: { type: "json_object" } },
+    input: [
+      {
+        role: "user",
+        content: `RESUME JSON:\n${JSON.stringify(resume, null, 2)}\n\nFLAGGED BULLETS:\n${JSON.stringify(issues, null, 2)}`,
+      },
+    ],
+  });
+
+  return normalizeBulletRewrites(JSON.parse(extractJson(response.output_text)));
+}
+
+export const openaiClient: LlmClient = {
+  analyzeJobMatch,
+  parseResumeFromPdf,
+  generateCoverLetter,
+  rewriteBullets,
+};

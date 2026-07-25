@@ -71,6 +71,7 @@ export interface AiSuggestion {
   original: string;
   suggested: string;
   reason: string;
+  needsUserInput?: boolean;
 }
 
 export interface ProjectRelevance {
@@ -107,6 +108,9 @@ interface ResumeState {
   reviewedSuggestionPaths: string[];
   isAnalyzing: boolean;
   analyzeError: string | null;
+  qualitySuggestions: AiSuggestion[];
+  isRewritingQuality: boolean;
+  rewriteQualityError: string | null;
   providerKeys: Partial<Record<LlmProvider, string>>;
   selectedProvider: LlmProvider;
   projectRelevance: ProjectRelevance[];
@@ -147,6 +151,11 @@ interface ResumeState {
   dismissSuggestion: (id: string) => void;
   setAnalyzing: (isAnalyzing: boolean) => void;
   setAnalyzeError: (error: string | null) => void;
+  setQualitySuggestions: (suggestions: AiSuggestion[]) => void;
+  applyQualitySuggestion: (id: string) => void;
+  dismissQualitySuggestion: (id: string) => void;
+  setRewritingQuality: (isRewriting: boolean) => void;
+  setRewriteQualityError: (error: string | null) => void;
   setProjectRelevance: (raw: RawProjectRelevance[]) => void;
   toggleProjectVisibility: (projectId: string) => void;
   isProjectHidden: (projectId: string) => boolean;
@@ -171,6 +180,9 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
   reviewedSuggestionPaths: [],
   isAnalyzing: false,
   analyzeError: null,
+  qualitySuggestions: [],
+  isRewritingQuality: false,
+  rewriteQualityError: null,
   providerKeys: {},
   selectedProvider: "anthropic",
   projectRelevance: [],
@@ -400,6 +412,29 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
 
   setAnalyzing: (isAnalyzing) => set({ isAnalyzing }),
   setAnalyzeError: (analyzeError) => set({ analyzeError }),
+
+  setQualitySuggestions: (suggestions) => set({ qualitySuggestions: suggestions }),
+
+  applyQualitySuggestion: (id) => {
+    const suggestion = get().qualitySuggestions.find((s) => s.id === id);
+    if (!suggestion) return;
+    get().pushUndoSnapshot();
+
+    set((state) => {
+      const resume = applyPathValue(state.resume, suggestion.path, suggestion.suggested);
+      persist(resume);
+      return {
+        resume,
+        qualitySuggestions: state.qualitySuggestions.filter((s) => s.id !== id),
+      };
+    });
+  },
+
+  dismissQualitySuggestion: (id) =>
+    set((state) => ({ qualitySuggestions: state.qualitySuggestions.filter((s) => s.id !== id) })),
+
+  setRewritingQuality: (isRewritingQuality) => set({ isRewritingQuality }),
+  setRewriteQualityError: (rewriteQualityError) => set({ rewriteQualityError }),
 
   setProviderKey: (provider, key) =>
     set((state) => {
