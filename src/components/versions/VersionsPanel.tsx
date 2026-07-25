@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { BackupData, useResumeStore } from "@/store/resumeStore";
+import { confirmDialog } from "@/store/confirmStore";
 import { inputClass, labelClass, primaryButtonClass, removeButtonClass, smallButtonClass } from "@/lib/formStyles";
 
 function formatDate(iso: string) {
@@ -54,14 +55,14 @@ export function VersionsPanel() {
 
     setImportError(null);
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       try {
         const parsed = JSON.parse(String(reader.result));
         if (!isBackupData(parsed)) {
           setImportError("This file doesn't look like a valid backup.");
           return;
         }
-        if (!window.confirm("This will replace your current resume and saved versions. Continue?")) {
+        if (!(await confirmDialog("This will replace your current resume and saved versions. Continue?"))) {
           return;
         }
         restoreBackup(parsed);
