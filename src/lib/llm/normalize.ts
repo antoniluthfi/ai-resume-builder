@@ -30,13 +30,15 @@ export function normalizeAnalyzeResult(parsed: Partial<AnalyzeJdResult>): Analyz
 
 export function normalizeBulletRewrites(parsed: { rewrites?: unknown }): RawBulletRewrite[] {
   if (!Array.isArray(parsed.rewrites)) return [];
-  return parsed.rewrites.map((r: Partial<RawBulletRewrite>) => ({
-    path: r?.path ?? "",
-    original: r?.original ?? "",
-    suggested: r?.suggested ?? "",
-    reason: r?.reason ?? "",
-    needsUserInput: r?.needsUserInput === true,
-  }));
+  return parsed.rewrites
+    .map((r: Partial<RawBulletRewrite>) => ({
+      path: r?.path ?? "",
+      original: r?.original ?? "",
+      suggested: r?.suggested ?? "",
+      reason: r?.reason ?? "",
+      needsUserInput: r?.needsUserInput === true,
+    }))
+    .filter((r) => r.path && r.suggested.trim() && r.suggested.trim() !== r.original.trim());
 }
 
 export function normalizeParsedResume(parsed: Partial<ParsedResumeData>): ParsedResumeData {
