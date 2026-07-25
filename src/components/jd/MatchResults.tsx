@@ -3,18 +3,7 @@
 import { MatchResult } from "@/lib/keywordExtractor";
 import { RawKeywordMatch } from "@/lib/llm/types";
 import { sectionClass, sectionTitleClass, tagClass } from "@/lib/formStyles";
-
-function scoreColor(percentage: number) {
-  if (percentage >= 70) return "text-emerald-600";
-  if (percentage >= 40) return "text-amber-600";
-  return "text-rose-600";
-}
-
-function scoreBarColor(percentage: number) {
-  if (percentage >= 70) return "bg-emerald-500";
-  if (percentage >= 40) return "bg-amber-500";
-  return "bg-rose-500";
-}
+import { scoreColorClass, scoreBarColorClass } from "@/lib/scoreDisplay";
 
 export function MatchResults({
   result,
@@ -37,14 +26,14 @@ export function MatchResults({
             </span>
           )}
         </div>
-        <span className={`text-lg font-bold ${scoreColor(displayed.matchPercentage)}`}>
+        <span className={`text-lg font-bold ${scoreColorClass(displayed.matchPercentage)}`}>
           {displayed.matchPercentage}%
         </span>
       </div>
 
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
         <div
-          className={`h-full rounded-full transition-[width] duration-500 ${scoreBarColor(displayed.matchPercentage)}`}
+          className={`h-full rounded-full transition-[width] duration-500 ${scoreBarColorClass(displayed.matchPercentage)}`}
           style={{ width: `${Math.min(100, Math.max(0, displayed.matchPercentage))}%` }}
         />
       </div>

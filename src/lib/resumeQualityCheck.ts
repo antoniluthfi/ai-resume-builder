@@ -51,6 +51,13 @@ function checkBullet(text: string): string[] {
   return problems;
 }
 
+export function countResumeBullets(resume: ResumeData): number {
+  return (
+    resume.experience.reduce((sum, e) => sum + e.bullets.filter(Boolean).length, 0) +
+    resume.projects.reduce((sum, p) => sum + (p.bullets?.filter(Boolean).length ?? 0), 0)
+  );
+}
+
 /** Local, instant, no-API-call heuristic check for common weak-resume-bullet patterns. */
 export function checkResumeQuality(resume: ResumeData): QualityIssue[] {
   const issues: QualityIssue[] = [];
