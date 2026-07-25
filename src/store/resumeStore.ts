@@ -16,11 +16,25 @@ const PROVIDER_KEYS_STORAGE_KEY = "ai-resume-builder:provider-keys";
 const VERSIONS_STORAGE_KEY = "ai-resume-builder:versions";
 const MAX_UNDO_ENTRIES = 10;
 
+/** Migrates project entries saved before "link" (single string) became "links" (string[]). */
+function migrateProjectLinks(resume: ResumeData): ResumeData {
+  return {
+    ...resume,
+    projects: resume.projects.map((project) => {
+      const legacyLink = (project as ProjectEntry & { link?: string }).link;
+      if (project.links || !legacyLink) return project;
+      const migrated = { ...project, links: [legacyLink] } as ProjectEntry & { link?: string };
+      delete migrated.link;
+      return migrated;
+    }),
+  };
+}
+
 function readStoredResume(): ResumeData | null {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
-    return { ...emptyResumeData, ...JSON.parse(raw) };
+    return migrateProjectLinks({ ...emptyResumeData, ...JSON.parse(raw) });
   } catch {
     return null;
   }
@@ -322,8 +336,9 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
         id: makeId(),
         name: "",
         description: "",
+        techStack: "",
         bullets: [],
-        link: "",
+        links: [],
       };
       const resume = { ...state.resume, projects: [...state.resume.projects, entry] };
       persist(resume);

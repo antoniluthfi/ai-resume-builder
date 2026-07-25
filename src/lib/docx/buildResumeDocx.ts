@@ -126,17 +126,21 @@ export function buildResumeDocx(resume: ResumeData): Document {
       projects.forEach((entry) => {
         paragraphs.push(
           new Paragraph({
-            children: [
-              new TextRun({
-                text: `${entry.name}${entry.link ? ` (${entry.link})` : ""}`,
-                bold: true,
-                size: 20,
-              }),
-            ],
+            children: [new TextRun({ text: entry.name, bold: true, size: 20 })],
           })
         );
+        (entry.links ?? []).forEach((link) => {
+          paragraphs.push(
+            new Paragraph({ children: [new TextRun({ text: link, size: 18, color: MUTED_COLOR })] })
+          );
+        });
         if (entry.description) {
           paragraphs.push(new Paragraph({ children: [new TextRun({ text: entry.description, size: 20 })] }));
+        }
+        if (entry.techStack) {
+          paragraphs.push(
+            new Paragraph({ children: [new TextRun({ text: entry.techStack, size: 18, color: MUTED_COLOR })] })
+          );
         }
         (entry.bullets ?? []).filter(Boolean).forEach((bullet) => paragraphs.push(bulletParagraph(bullet)));
       });

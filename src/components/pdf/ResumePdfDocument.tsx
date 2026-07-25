@@ -94,10 +94,14 @@ export function ResumePdfDocument({ resume }: { resume: ResumeData }) {
         <Text style={styles.sectionTitle}>Projects</Text>
         {projects.map((entry) => (
           <View key={entry.id} style={styles.entry}>
-            <Text style={styles.bold}>
-              {entry.name} {entry.link && `(${entry.link})`}
-            </Text>
+            <Text style={styles.bold}>{entry.name}</Text>
+            {(entry.links ?? []).map((link, i) => (
+              <Text key={i} style={styles.muted}>
+                {link}
+              </Text>
+            ))}
             <Text>{entry.description}</Text>
+            {entry.techStack && <Text style={styles.muted}>{entry.techStack}</Text>}
             {(entry.bullets ?? []).filter(Boolean).map((bullet, i) => (
               <View key={i} style={styles.bullet}>
                 <Text style={styles.bulletDot}>•</Text>

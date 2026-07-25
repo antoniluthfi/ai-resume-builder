@@ -25,6 +25,7 @@ Rules:
 - Leave a field as an empty string, empty array, or omit it if the document doesn't contain it.
 - Preserve bullet points as separate strings in "bullets", one per bullet.
 - "personalInfo.title" is the professional headline shown near the candidate's name (e.g. "Senior Frontend Engineer"), not the file name or a document title.
+- For each project, "description" is a one-sentence summary of what the project is/does; if the document also lists tools/languages/frameworks for that project, put that comma-separated list in "techStack" instead - never merge the two into "description".
 - Respond with ONLY valid JSON matching this exact TypeScript shape, no prose, no markdown fences, no "id" fields:
 {
   "personalInfo": {"name": string, "title"?: string, "email": string, "phone": string, "location": string, "linkedin"?: string, "website"?: string},
@@ -32,7 +33,7 @@ Rules:
   "experience": {"company": string, "title": string, "location"?: string, "startDate": string, "endDate"?: string, "bullets": string[]}[],
   "education": {"school": string, "degree": string, "field"?: string, "startDate": string, "endDate"?: string}[],
   "skills": string[],
-  "projects": {"name": string, "description": string, "bullets"?: string[], "link"?: string}[],
+  "projects": {"name": string, "description": string, "techStack"?: string, "bullets"?: string[], "links"?: string[]}[],
   "certifications": {"name": string, "issuer"?: string, "date"?: string}[]
 }`;
 

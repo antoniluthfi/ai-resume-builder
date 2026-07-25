@@ -84,10 +84,14 @@ export function ResumePreview() {
         <div className="space-y-2">
           {projects.map((entry) => (
             <div key={entry.id}>
-              <p className="font-semibold">
-                {entry.name} {entry.link && `(${entry.link})`}
-              </p>
+              <p className="font-semibold">{entry.name}</p>
+              {(entry.links ?? []).map((link, i) => (
+                <p key={i} className="text-xs text-slate-600">
+                  {link}
+                </p>
+              ))}
               <p>{entry.description}</p>
+              {entry.techStack && <p className="text-xs text-slate-600">{entry.techStack}</p>}
               {(entry.bullets ?? []).filter(Boolean).length > 0 && (
                 <ul className="list-disc list-inside">
                   {(entry.bullets ?? []).filter(Boolean).map((bullet, i) => (

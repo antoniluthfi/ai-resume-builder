@@ -31,8 +31,9 @@ export interface ProjectEntry {
   id: string;
   name: string;
   description: string;
+  techStack?: string;
   bullets?: string[];
-  link?: string;
+  links?: string[];
 }
 
 export interface CertificationEntry {
