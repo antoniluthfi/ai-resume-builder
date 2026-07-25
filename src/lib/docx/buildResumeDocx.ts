@@ -1,5 +1,6 @@
 import { AlignmentType, Document, HeadingLevel, Paragraph, TextRun } from "docx";
 import { ResumeData } from "@/types/resume";
+import { getResumeSectionOrder, ResumeSectionKey } from "@/lib/resumeSectionOrder";
 
 const MUTED_COLOR = "4b5563";
 const TITLE_COLOR = "374151";
@@ -74,74 +75,88 @@ export function buildResumeDocx(resume: ResumeData): Document {
     );
   }
 
-  if (summary) {
-    children.push(heading("Summary"));
-    children.push(new Paragraph({ children: [new TextRun({ text: summary, size: 20 })] }));
-  }
+  const sectionBuilders: Record<ResumeSectionKey, () => Paragraph[]> = {
+    summary: () => {
+      if (!summary) return [];
+      return [heading("Summary"), new Paragraph({ children: [new TextRun({ text: summary, size: 20 })] })];
+    },
 
-  if (experience.length > 0) {
-    children.push(heading("Experience"));
-    experience.forEach((entry) => {
-      children.push(
-        rowParagraph(
-          `${entry.title || "Job title"} — ${entry.company || "Company"}`,
-          `${entry.startDate} - ${entry.endDate || "Present"}`
-        )
-      );
-      if (entry.location) {
-        children.push(
-          new Paragraph({ children: [new TextRun({ text: entry.location, size: 18, color: MUTED_COLOR })] })
+    experience: () => {
+      if (experience.length === 0) return [];
+      const paragraphs: Paragraph[] = [heading("Experience")];
+      experience.forEach((entry) => {
+        paragraphs.push(
+          rowParagraph(
+            `${entry.title || "Job title"} — ${entry.company || "Company"}`,
+            `${entry.startDate} - ${entry.endDate || "Present"}`
+          )
         );
-      }
-      entry.bullets.filter(Boolean).forEach((bullet) => children.push(bulletParagraph(bullet)));
-    });
-  }
+        if (entry.location) {
+          paragraphs.push(
+            new Paragraph({ children: [new TextRun({ text: entry.location, size: 18, color: MUTED_COLOR })] })
+          );
+        }
+        entry.bullets.filter(Boolean).forEach((bullet) => paragraphs.push(bulletParagraph(bullet)));
+      });
+      return paragraphs;
+    },
 
-  if (education.length > 0) {
-    children.push(heading("Education"));
-    education.forEach((entry) => {
-      children.push(
-        rowParagraph(
-          `${entry.degree}${entry.field ? ` in ${entry.field}` : ""} — ${entry.school}`,
-          `${entry.startDate} - ${entry.endDate}`
-        )
-      );
-    });
-  }
+    education: () => {
+      if (education.length === 0) return [];
+      const paragraphs: Paragraph[] = [heading("Education")];
+      education.forEach((entry) => {
+        paragraphs.push(
+          rowParagraph(
+            `${entry.degree}${entry.field ? ` in ${entry.field}` : ""} — ${entry.school}`,
+            `${entry.startDate} - ${entry.endDate}`
+          )
+        );
+      });
+      return paragraphs;
+    },
 
-  if (skills.length > 0) {
-    children.push(heading("Skills"));
-    children.push(new Paragraph({ children: [new TextRun({ text: skills.join(", "), size: 20 })] }));
-  }
+    skills: () => {
+      if (skills.length === 0) return [];
+      return [heading("Skills"), new Paragraph({ children: [new TextRun({ text: skills.join(", "), size: 20 })] })];
+    },
 
-  if (projects.length > 0) {
-    children.push(heading("Projects"));
-    projects.forEach((entry) => {
-      children.push(
-        new Paragraph({
-          children: [
-            new TextRun({
-              text: `${entry.name}${entry.link ? ` (${entry.link})` : ""}`,
-              bold: true,
-              size: 20,
-            }),
-          ],
-        })
-      );
-      if (entry.description) {
-        children.push(new Paragraph({ children: [new TextRun({ text: entry.description, size: 20 })] }));
-      }
-      (entry.bullets ?? []).filter(Boolean).forEach((bullet) => children.push(bulletParagraph(bullet)));
-    });
-  }
+    projects: () => {
+      if (projects.length === 0) return [];
+      const paragraphs: Paragraph[] = [heading("Projects")];
+      projects.forEach((entry) => {
+        paragraphs.push(
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: `${entry.name}${entry.link ? ` (${entry.link})` : ""}`,
+                bold: true,
+                size: 20,
+              }),
+            ],
+          })
+        );
+        if (entry.description) {
+          paragraphs.push(new Paragraph({ children: [new TextRun({ text: entry.description, size: 20 })] }));
+        }
+        (entry.bullets ?? []).filter(Boolean).forEach((bullet) => paragraphs.push(bulletParagraph(bullet)));
+      });
+      return paragraphs;
+    },
 
-  if (certifications.length > 0) {
-    children.push(heading("Certifications"));
-    certifications.forEach((entry) => {
-      children.push(
-        rowParagraph(`${entry.name}${entry.issuer ? ` — ${entry.issuer}` : ""}`, entry.date ?? "")
-      );
-    });
+    certifications: () => {
+      if (certifications.length === 0) return [];
+      const paragraphs: Paragraph[] = [heading("Certifications")];
+      certifications.forEach((entry) => {
+        paragraphs.push(
+          rowParagraph(`${entry.name}${entry.issuer ? ` — ${entry.issuer}` : ""}`, entry.date ?? "")
+        );
+      });
+      return paragraphs;
+    },
+  };
+
+  for (const key of getResumeSectionOrder(resume)) {
+    children.push(...sectionBuilders[key]());
   }
 
   return new Document({
