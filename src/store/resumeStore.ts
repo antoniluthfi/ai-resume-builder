@@ -9,7 +9,7 @@ import {
   ProjectEntry,
   ResumeData,
 } from "@/types/resume";
-import { LlmProvider, RawMissingSkill, RawProjectRelevance } from "@/lib/llm/types";
+import { LlmProvider, RawKeywordMatch, RawMissingSkill, RawProjectRelevance } from "@/lib/llm/types";
 
 const STORAGE_KEY = "ai-resume-builder:resume";
 const PROVIDER_KEYS_STORAGE_KEY = "ai-resume-builder:provider-keys";
@@ -103,6 +103,7 @@ interface ResumeState {
   jobDescription: string;
   aiSuggestions: AiSuggestion[];
   aiMissingSkills: RawMissingSkill[];
+  aiKeywordMatch: RawKeywordMatch | null;
   isAnalyzing: boolean;
   analyzeError: string | null;
   providerKeys: Partial<Record<LlmProvider, string>>;
@@ -139,6 +140,7 @@ interface ResumeState {
 
   setAiSuggestions: (suggestions: AiSuggestion[]) => void;
   setAiMissingSkills: (skills: RawMissingSkill[]) => void;
+  setAiKeywordMatch: (match: RawKeywordMatch | null) => void;
   applySuggestion: (id: string) => void;
   dismissSuggestion: (id: string) => void;
   setAnalyzing: (isAnalyzing: boolean) => void;
@@ -163,6 +165,7 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
   jobDescription: "",
   aiSuggestions: [],
   aiMissingSkills: [],
+  aiKeywordMatch: null,
   isAnalyzing: false,
   analyzeError: null,
   providerKeys: {},
@@ -360,6 +363,7 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
 
   setAiSuggestions: (suggestions) => set({ aiSuggestions: suggestions }),
   setAiMissingSkills: (skills) => set({ aiMissingSkills: skills }),
+  setAiKeywordMatch: (match) => set({ aiKeywordMatch: match }),
 
   applySuggestion: (id) => {
     const suggestion = get().aiSuggestions.find((s) => s.id === id);

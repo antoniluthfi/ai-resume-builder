@@ -35,10 +35,17 @@ export interface RawMissingSkill {
   impliedBy: string[];
 }
 
+export interface RawKeywordMatch {
+  matchPercentage: number;
+  matched: string[];
+  missing: string[];
+}
+
 export interface AnalyzeJdResult {
   missingSkills: RawMissingSkill[];
   suggestions: RawAiSuggestion[];
   projectRelevance: RawProjectRelevance[];
+  keywordMatch: RawKeywordMatch;
 }
 
 export interface LlmClient {

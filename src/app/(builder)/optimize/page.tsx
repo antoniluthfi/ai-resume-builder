@@ -12,6 +12,7 @@ export default function OptimizePage() {
   const resume = useResumeStore((s) => s.resume);
   const jobDescription = useResumeStore((s) => s.jobDescription);
   const setJobDescription = useResumeStore((s) => s.setJobDescription);
+  const aiKeywordMatch = useResumeStore((s) => s.aiKeywordMatch);
 
   const matchResult = useMemo(() => {
     if (!jobDescription.trim()) return null;
@@ -21,7 +22,7 @@ export default function OptimizePage() {
   return (
     <div className="space-y-4">
       <JobDescriptionInput value={jobDescription} onChange={setJobDescription} />
-      <MatchResults result={matchResult} />
+      <MatchResults result={matchResult} aiResult={jobDescription.trim() ? aiKeywordMatch : null} />
       <AiSuggestions jobDescription={jobDescription} />
       <CoverLetterPanel jobDescription={jobDescription} />
     </div>

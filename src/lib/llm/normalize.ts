@@ -10,10 +10,21 @@ export function normalizeAnalyzeResult(parsed: Partial<AnalyzeJdResult>): Analyz
       }))
     : [];
 
+  const rawKeywordMatch = parsed.keywordMatch;
+  const matched = Array.isArray(rawKeywordMatch?.matched) ? rawKeywordMatch.matched : [];
+  const missing = Array.isArray(rawKeywordMatch?.missing) ? rawKeywordMatch.missing : [];
+  const matchPercentage =
+    typeof rawKeywordMatch?.matchPercentage === "number"
+      ? rawKeywordMatch.matchPercentage
+      : matched.length + missing.length === 0
+        ? 0
+        : Math.round((matched.length / (matched.length + missing.length)) * 100);
+
   return {
     missingSkills,
     suggestions: Array.isArray(parsed.suggestions) ? parsed.suggestions : [],
     projectRelevance: Array.isArray(parsed.projectRelevance) ? parsed.projectRelevance : [],
+    keywordMatch: { matchPercentage, matched, missing },
   };
 }
 

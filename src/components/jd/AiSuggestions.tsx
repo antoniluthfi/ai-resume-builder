@@ -32,6 +32,7 @@ export function AiSuggestions({ jobDescription }: { jobDescription: string }) {
   const setAnalyzeError = useResumeStore((s) => s.setAnalyzeError);
   const setAiSuggestions = useResumeStore((s) => s.setAiSuggestions);
   const setAiMissingSkills = useResumeStore((s) => s.setAiMissingSkills);
+  const setAiKeywordMatch = useResumeStore((s) => s.setAiKeywordMatch);
   const applySuggestion = useResumeStore((s) => s.applySuggestion);
   const dismissSuggestion = useResumeStore((s) => s.dismissSuggestion);
   const selectedProvider = useResumeStore((s) => s.selectedProvider);
@@ -65,6 +66,7 @@ export function AiSuggestions({ jobDescription }: { jobDescription: string }) {
       );
       setAiMissingSkills(data.missingSkills ?? []);
       setProjectRelevance(data.projectRelevance ?? []);
+      setAiKeywordMatch(data.keywordMatch ?? null);
     } catch (error) {
       setAnalyzeError(error instanceof Error ? error.message : "Analysis failed");
     } finally {
