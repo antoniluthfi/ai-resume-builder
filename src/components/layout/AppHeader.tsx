@@ -27,7 +27,7 @@ export function AppHeader() {
           </span>
           <div className="hidden sm:block">
             <h1 className="text-sm font-bold leading-tight text-slate-900">AI Resume Builder</h1>
-            <p className="text-xs leading-tight text-slate-500">
+            <p className="hidden text-xs leading-tight text-slate-500 lg:block">
               ATS-friendly resume, tailored to every job description.
             </p>
           </div>

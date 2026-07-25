@@ -13,7 +13,8 @@ const PDFDownloadLink = dynamic(
     loading: () => (
       <span className={primaryButtonClass} aria-disabled>
         <FileArrowDown size={16} weight="bold" />
-        <span className="hidden sm:inline">Preparing PDF…</span>
+        <span className="hidden lg:inline">Preparing PDF…</span>
+        <span className="lg:hidden">PDF</span>
       </span>
     ),
   }
@@ -34,8 +35,8 @@ export function PdfDownloadButton() {
       {({ loading }) => (
         <span className={primaryButtonClass}>
           <FileArrowDown size={16} weight="bold" />
-          <span className="hidden sm:inline">{loading ? "Preparing PDF…" : "Download ATS-safe PDF"}</span>
-          <span className="sm:hidden">PDF</span>
+          <span className="hidden lg:inline">{loading ? "Preparing PDF…" : "Download ATS-safe PDF"}</span>
+          <span className="lg:hidden">PDF</span>
         </span>
       )}
     </PDFDownloadLink>

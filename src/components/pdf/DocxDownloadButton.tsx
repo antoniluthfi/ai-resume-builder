@@ -35,8 +35,8 @@ export function DocxDownloadButton() {
   return (
     <button className={secondaryButtonClass} onClick={handleDownload} disabled={isPreparing}>
       <FileDoc size={16} weight="bold" />
-      <span className="hidden sm:inline">{isPreparing ? "Preparing DOCX…" : "Download DOCX"}</span>
-      <span className="sm:hidden">DOCX</span>
+      <span className="hidden lg:inline">{isPreparing ? "Preparing DOCX…" : "Download DOCX"}</span>
+      <span className="lg:hidden">DOCX</span>
     </button>
   );
 }

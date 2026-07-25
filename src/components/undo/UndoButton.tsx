@@ -16,7 +16,7 @@ export function UndoButton() {
       className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 transition-colors hover:text-slate-900"
     >
       <ArrowCounterClockwise size={14} weight="bold" />
-      <span className="hidden sm:inline">Undo last AI change</span>
+      <span className="hidden lg:inline">Undo last AI change</span>
     </button>
   );
 }
