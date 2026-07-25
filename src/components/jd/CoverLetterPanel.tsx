@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 import { useResumeStore } from "@/store/resumeStore";
-import { inputClass, primaryButtonClass, sectionClass, sectionTitleClass, smallButtonClass } from "@/lib/formStyles";
+import { useToastStore } from "@/store/toastStore";
+import { inputClass, primaryButtonClass, smallButtonClass } from "@/lib/formStyles";
+import { AccordionSection } from "@/components/forms/AccordionSection";
+
+const EMAIL_PATTERN = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
 
 export function CoverLetterPanel({ jobDescription }: { jobDescription: string }) {
   const resume = useResumeStore((s) => s.resume);
@@ -13,6 +17,7 @@ export function CoverLetterPanel({ jobDescription }: { jobDescription: string })
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [recipientEmail, setRecipientEmail] = useState("");
+  const showToast = useToastStore((s) => s.showToast);
 
   async function handleGenerate() {
     if (!apiKey) return;
@@ -30,8 +35,15 @@ export function CoverLetterPanel({ jobDescription }: { jobDescription: string })
         throw new Error(data.error ?? "Cover letter generation failed");
       }
       setCoverLetter(data.coverLetter ?? "");
+      if (!recipientEmail.trim()) {
+        const match = jobDescription.match(EMAIL_PATTERN);
+        if (match) setRecipientEmail(match[0]);
+      }
+      showToast("success", "Cover letter generated");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Cover letter generation failed");
+      const message = err instanceof Error ? err.message : "Cover letter generation failed";
+      setError(message);
+      showToast("error", message);
     } finally {
       setIsGenerating(false);
     }
@@ -60,9 +72,9 @@ export function CoverLetterPanel({ jobDescription }: { jobDescription: string })
   }
 
   return (
-    <div className={sectionClass}>
-      <div className="flex items-center justify-between">
-        <h2 className={sectionTitleClass}>Cover Letter</h2>
+    <AccordionSection
+      title="Cover Letter"
+      actions={
         <button
           className={primaryButtonClass}
           onClick={handleGenerate}
@@ -70,8 +82,8 @@ export function CoverLetterPanel({ jobDescription }: { jobDescription: string })
         >
           {isGenerating ? "Generating…" : "Generate Cover Letter"}
         </button>
-      </div>
-
+      }
+    >
       {error && <p className="text-xs text-rose-600">{error}</p>}
 
       {coverLetter && (
@@ -117,6 +129,6 @@ export function CoverLetterPanel({ jobDescription }: { jobDescription: string })
           </div>
         </div>
       )}
-    </div>
+    </AccordionSection>
   );
 }

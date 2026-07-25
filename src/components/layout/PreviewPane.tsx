@@ -4,7 +4,6 @@ import { useState } from "react";
 import { EyeIcon as Eye } from "@phosphor-icons/react/dist/ssr/Eye";
 import { XIcon as X } from "@phosphor-icons/react/dist/ssr/X";
 import { ResumePreview } from "@/components/preview/ResumePreview";
-import { QualityChecklist } from "@/components/quality/QualityChecklist";
 
 export function PreviewPane() {
   const [open, setOpen] = useState(false);
@@ -13,7 +12,6 @@ export function PreviewPane() {
     <>
       <aside className="hidden min-w-0 space-y-4 pb-6 lg:block">
         <ResumePreview />
-        <QualityChecklist />
       </aside>
 
       <button
@@ -40,7 +38,6 @@ export function PreviewPane() {
           </div>
           <div className="flex-1 space-y-4 overflow-y-auto bg-slate-50 p-4">
             <ResumePreview />
-            <QualityChecklist />
           </div>
         </div>
       )}

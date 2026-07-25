@@ -2,13 +2,9 @@
 
 import { useState } from "react";
 import { useResumeStore } from "@/store/resumeStore";
-import {
-  primaryButtonClass,
-  removeButtonClass,
-  sectionClass,
-  sectionTitleClass,
-  smallButtonClass,
-} from "@/lib/formStyles";
+import { useToastStore } from "@/store/toastStore";
+import { primaryButtonClass, removeButtonClass, smallButtonClass } from "@/lib/formStyles";
+import { AccordionSection } from "@/components/forms/AccordionSection";
 
 function describeSuggestionPath(path: string): string {
   if (path === "personalInfo.title") return "Professional title";
@@ -46,6 +42,7 @@ export function AiSuggestions({ jobDescription }: { jobDescription: string }) {
   const toggleProjectVisibility = useResumeStore((s) => s.toggleProjectVisibility);
   const setSkills = useResumeStore((s) => s.setSkills);
   const pushUndoSnapshot = useResumeStore((s) => s.pushUndoSnapshot);
+  const showToast = useToastStore((s) => s.showToast);
 
   async function handleEnhance() {
     if (!apiKey) return;
@@ -73,17 +70,23 @@ export function AiSuggestions({ jobDescription }: { jobDescription: string }) {
       setAiMissingSkills(data.missingSkills ?? []);
       setProjectRelevance(data.projectRelevance ?? []);
       setAiKeywordMatch(data.keywordMatch ?? null);
+      showToast(
+        "success",
+        newSuggestions.length === 0 ? "No new tailoring suggestions" : "Tailoring suggestions ready"
+      );
     } catch (error) {
-      setAnalyzeError(error instanceof Error ? error.message : "Analysis failed");
+      const message = error instanceof Error ? error.message : "Analysis failed";
+      setAnalyzeError(message);
+      showToast("error", message);
     } finally {
       setAnalyzing(false);
     }
   }
 
   return (
-    <div className={sectionClass}>
-      <div className="flex items-center justify-between">
-        <h2 className={sectionTitleClass}>AI Tailoring Suggestions</h2>
+    <AccordionSection
+      title="AI Tailoring Suggestions"
+      actions={
         <button
           className={primaryButtonClass}
           onClick={handleEnhance}
@@ -91,8 +94,8 @@ export function AiSuggestions({ jobDescription }: { jobDescription: string }) {
         >
           {isAnalyzing ? "Analyzing…" : "Enhance with AI"}
         </button>
-      </div>
-
+      }
+    >
       {analyzeError && <p className="text-xs text-rose-600">{analyzeError}</p>}
 
       {noNewSuggestions && (
@@ -205,6 +208,6 @@ export function AiSuggestions({ jobDescription }: { jobDescription: string }) {
           </div>
         ))}
       </div>
-    </div>
+    </AccordionSection>
   );
 }

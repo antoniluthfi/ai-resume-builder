@@ -9,6 +9,7 @@ interface AccordionSectionProps {
   description?: string;
   defaultOpen?: boolean;
   badge?: React.ReactNode;
+  actions?: React.ReactNode;
   children: React.ReactNode;
 }
 
@@ -17,33 +18,44 @@ export function AccordionSection({
   description,
   defaultOpen = false,
   badge,
+  actions,
   children,
 }: AccordionSectionProps) {
   const [open, setOpen] = useState(defaultOpen);
+  const toggle = () => setOpen((v) => !v);
 
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white [box-shadow:var(--shadow-card)]">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-        className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left sm:px-5"
-      >
-        <span className="flex min-w-0 items-center gap-2">
+      <div className="flex w-full items-center justify-between gap-3 px-4 py-4 sm:px-5">
+        <button
+          type="button"
+          onClick={toggle}
+          aria-expanded={open}
+          className="flex min-w-0 flex-1 items-center gap-2 text-left"
+        >
           <span className="truncate text-sm font-semibold text-slate-900">{title}</span>
           {badge}
-        </span>
-        <span className="flex shrink-0 items-center gap-3">
           {description && (
-            <span className="hidden text-xs text-slate-400 sm:inline">{description}</span>
+            <span className="hidden truncate text-xs text-slate-400 sm:inline">{description}</span>
           )}
-          <CaretDown
-            size={16}
-            weight="bold"
-            className={`text-slate-400 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
-          />
+        </button>
+        <span className="flex shrink-0 items-center gap-3">
+          {actions}
+          <button
+            type="button"
+            onClick={toggle}
+            aria-expanded={open}
+            aria-label={open ? "Collapse section" : "Expand section"}
+            className="text-slate-400 hover:text-slate-600"
+          >
+            <CaretDown
+              size={16}
+              weight="bold"
+              className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+            />
+          </button>
         </span>
-      </button>
+      </div>
       <div
         className="grid transition-[grid-template-rows] duration-200 ease-out"
         style={{ gridTemplateRows: open ? "1fr" : "0fr" }}

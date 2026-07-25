@@ -2,6 +2,7 @@
 
 import { ResumeUploadButton } from "@/components/forms/ResumeUploadButton";
 import { AccordionSection } from "@/components/forms/AccordionSection";
+import { QualityChecklist } from "@/components/quality/QualityChecklist";
 import { PersonalInfoForm } from "@/components/forms/PersonalInfoForm";
 import { SummaryForm } from "@/components/forms/SummaryForm";
 import { ExperienceForm } from "@/components/forms/ExperienceForm";
@@ -20,6 +21,8 @@ export default function EditorPage() {
   return (
     <div className="space-y-4">
       <ResumeUploadButton />
+
+      <QualityChecklist />
 
       <AccordionSection title="Personal Info" defaultOpen>
         <PersonalInfoForm />
