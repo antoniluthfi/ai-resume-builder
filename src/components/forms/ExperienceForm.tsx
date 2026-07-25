@@ -1,13 +1,13 @@
 "use client";
 
+import { PlusCircleIcon as PlusCircle } from "@phosphor-icons/react/dist/ssr/PlusCircle";
 import { useResumeStore } from "@/store/resumeStore";
 import {
+  entryCardClass,
   inputClass,
   labelClass,
   primaryButtonClass,
   removeButtonClass,
-  sectionClass,
-  sectionTitleClass,
   smallButtonClass,
 } from "@/lib/formStyles";
 import { ExperienceEntry } from "@/types/resume";
@@ -33,17 +33,19 @@ export function ExperienceForm() {
   }
 
   return (
-    <div className={sectionClass}>
-      <div className="flex items-center justify-between">
-        <h2 className={sectionTitleClass}>Experience</h2>
-        <button className={smallButtonClass} onClick={addExperience}>
-          + Add experience
-        </button>
-      </div>
+    <>
+      {experience.length > 0 && (
+        <div className="flex justify-end">
+          <button className={`inline-flex items-center gap-1 ${smallButtonClass}`} onClick={addExperience}>
+            <PlusCircle size={14} weight="bold" />
+            Add experience
+          </button>
+        </div>
+      )}
 
       {experience.map((entry) => (
-        <div key={entry.id} className="rounded-md border border-gray-100 p-3 space-y-3">
-          <div className="grid grid-cols-2 gap-3">
+        <div key={entry.id} className={entryCardClass}>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className={labelClass}>Job title</label>
               <input
@@ -125,10 +127,11 @@ export function ExperienceForm() {
       ))}
 
       {experience.length === 0 && (
-        <button className={primaryButtonClass} onClick={addExperience}>
+        <button className={`inline-flex items-center gap-1.5 ${primaryButtonClass}`} onClick={addExperience}>
+          <PlusCircle size={16} weight="bold" />
           Add your first experience
         </button>
       )}
-    </div>
+    </>
   );
 }

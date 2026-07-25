@@ -1,16 +1,15 @@
 "use client";
 
 import { useResumeStore } from "@/store/resumeStore";
-import { inputClass, labelClass, sectionClass, sectionTitleClass } from "@/lib/formStyles";
+import { inputClass, labelClass } from "@/lib/formStyles";
 
 export function PersonalInfoForm() {
   const personalInfo = useResumeStore((s) => s.resume.personalInfo);
   const setPersonalInfo = useResumeStore((s) => s.setPersonalInfo);
 
   return (
-    <div className={sectionClass}>
-      <h2 className={sectionTitleClass}>Personal Info</h2>
-      <div className="grid grid-cols-2 gap-3">
+    <>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
           <label className={labelClass}>Full name</label>
           <input
@@ -75,6 +74,6 @@ export function PersonalInfoForm() {
           />
         </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -1,9 +1,10 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { UploadSimpleIcon as UploadSimple } from "@phosphor-icons/react/dist/ssr/UploadSimple";
 import { useResumeStore } from "@/store/resumeStore";
 import { ParsedResumeData } from "@/types/resume";
-import { sectionClass, smallButtonClass } from "@/lib/formStyles";
+import { secondaryButtonClass, sectionClass } from "@/lib/formStyles";
 
 export function ResumeUploadButton() {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -47,28 +48,27 @@ export function ResumeUploadButton() {
   }
 
   return (
-    <div className={sectionClass}>
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-sm font-semibold text-gray-900">Already have a resume?</h2>
-          <p className="text-xs text-gray-500">Upload a PDF to auto-fill the form below.</p>
-        </div>
-        <button
-          className={smallButtonClass}
-          onClick={() => inputRef.current?.click()}
-          disabled={isUploading || !apiKey}
-        >
-          {isUploading ? "Parsing…" : "Upload PDF"}
-        </button>
-        <input
-          ref={inputRef}
-          type="file"
-          accept="application/pdf"
-          className="hidden"
-          onChange={handleFileChange}
-        />
+    <div className={`flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between ${sectionClass}`}>
+      <div>
+        <h2 className="text-sm font-semibold text-slate-900">Already have a resume?</h2>
+        <p className="text-xs text-slate-500">Upload a PDF to auto-fill the form below.</p>
       </div>
-      {error && <p className="text-xs text-red-600 mt-2">{error}</p>}
+      <button
+        className={`shrink-0 self-start sm:self-auto ${secondaryButtonClass}`}
+        onClick={() => inputRef.current?.click()}
+        disabled={isUploading || !apiKey}
+      >
+        <UploadSimple size={16} weight="bold" />
+        {isUploading ? "Parsing…" : "Upload PDF"}
+      </button>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="application/pdf"
+        className="hidden"
+        onChange={handleFileChange}
+      />
+      {error && <p className="w-full text-xs text-rose-600">{error}</p>}
     </div>
   );
 }

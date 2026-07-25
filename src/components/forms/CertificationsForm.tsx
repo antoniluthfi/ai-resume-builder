@@ -1,14 +1,8 @@
 "use client";
 
+import { PlusCircleIcon as PlusCircle } from "@phosphor-icons/react/dist/ssr/PlusCircle";
 import { useResumeStore } from "@/store/resumeStore";
-import {
-  inputClass,
-  labelClass,
-  removeButtonClass,
-  sectionClass,
-  sectionTitleClass,
-  smallButtonClass,
-} from "@/lib/formStyles";
+import { entryCardClass, inputClass, labelClass, removeButtonClass, smallButtonClass } from "@/lib/formStyles";
 
 export function CertificationsForm() {
   const certifications = useResumeStore((s) => s.resume.certifications);
@@ -17,16 +11,16 @@ export function CertificationsForm() {
   const removeCertification = useResumeStore((s) => s.removeCertification);
 
   return (
-    <div className={sectionClass}>
-      <div className="flex items-center justify-between">
-        <h2 className={sectionTitleClass}>Certifications (optional)</h2>
-        <button className={smallButtonClass} onClick={addCertification}>
-          + Add certification
+    <>
+      <div className="flex justify-end">
+        <button className={`inline-flex items-center gap-1 ${smallButtonClass}`} onClick={addCertification}>
+          <PlusCircle size={14} weight="bold" />
+          Add certification
         </button>
       </div>
 
       {certifications.map((entry) => (
-        <div key={entry.id} className="grid grid-cols-3 gap-2 rounded-md border border-gray-100 p-3">
+        <div key={entry.id} className={`grid grid-cols-1 gap-2 sm:grid-cols-3 ${entryCardClass}`}>
           <div>
             <label className={labelClass}>Name</label>
             <input
@@ -61,6 +55,6 @@ export function CertificationsForm() {
           </div>
         </div>
       ))}
-    </div>
+    </>
   );
 }

@@ -1,14 +1,8 @@
 "use client";
 
+import { PlusCircleIcon as PlusCircle } from "@phosphor-icons/react/dist/ssr/PlusCircle";
 import { useResumeStore } from "@/store/resumeStore";
-import {
-  inputClass,
-  labelClass,
-  removeButtonClass,
-  sectionClass,
-  sectionTitleClass,
-  smallButtonClass,
-} from "@/lib/formStyles";
+import { entryCardClass, inputClass, labelClass, removeButtonClass, smallButtonClass } from "@/lib/formStyles";
 
 export function ProjectsForm() {
   const projects = useResumeStore((s) => s.resume.projects);
@@ -17,16 +11,16 @@ export function ProjectsForm() {
   const removeProject = useResumeStore((s) => s.removeProject);
 
   return (
-    <div className={sectionClass}>
-      <div className="flex items-center justify-between">
-        <h2 className={sectionTitleClass}>Projects (optional)</h2>
-        <button className={smallButtonClass} onClick={addProject}>
-          + Add project
+    <>
+      <div className="flex justify-end">
+        <button className={`inline-flex items-center gap-1 ${smallButtonClass}`} onClick={addProject}>
+          <PlusCircle size={14} weight="bold" />
+          Add project
         </button>
       </div>
 
       {projects.map((entry) => (
-        <div key={entry.id} className="rounded-md border border-gray-100 p-3 space-y-3">
+        <div key={entry.id} className={entryCardClass}>
           <div>
             <label className={labelClass}>Name</label>
             <input
@@ -59,6 +53,6 @@ export function ProjectsForm() {
           </button>
         </div>
       ))}
-    </div>
+    </>
   );
 }

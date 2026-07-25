@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useResumeStore } from "@/store/resumeStore";
-import { inputClass, sectionClass, sectionTitleClass } from "@/lib/formStyles";
+import { inputClass, tagClass } from "@/lib/formStyles";
 
 export function SkillsForm() {
   const skills = useResumeStore((s) => s.resume.skills);
@@ -23,8 +23,7 @@ export function SkillsForm() {
   }
 
   return (
-    <div className={sectionClass}>
-      <h2 className={sectionTitleClass}>Skills</h2>
+    <>
       <input
         className={inputClass}
         value={draft}
@@ -42,12 +41,12 @@ export function SkillsForm() {
         {skills.map((skill) => (
           <span
             key={skill}
-            className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700"
+            className={`inline-flex items-center gap-1.5 bg-accent-soft text-accent-hover ${tagClass}`}
           >
             {skill}
             <button
               onClick={() => removeSkill(skill)}
-              className="text-blue-400 hover:text-blue-700"
+              className="text-accent/60 hover:text-accent-hover"
               aria-label={`Remove ${skill}`}
             >
               &times;
@@ -55,6 +54,6 @@ export function SkillsForm() {
           </span>
         ))}
       </div>
-    </div>
+    </>
   );
 }
