@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { FileDocIcon as FileDoc } from "@phosphor-icons/react/dist/ssr/FileDoc";
 import { useResumeStore } from "@/store/resumeStore";
 import { buildResumeDocx } from "@/lib/docx/buildResumeDocx";
-import { primaryButtonClass } from "@/lib/formStyles";
+import { secondaryButtonClass } from "@/lib/formStyles";
 
 export function DocxDownloadButton() {
   const resume = useResumeStore((s) => s.resume);
@@ -32,8 +33,10 @@ export function DocxDownloadButton() {
   }
 
   return (
-    <button className={primaryButtonClass} onClick={handleDownload} disabled={isPreparing}>
-      {isPreparing ? "Preparing DOCX…" : "Download DOCX"}
+    <button className={secondaryButtonClass} onClick={handleDownload} disabled={isPreparing}>
+      <FileDoc size={16} weight="bold" />
+      <span className="hidden sm:inline">{isPreparing ? "Preparing DOCX…" : "Download DOCX"}</span>
+      <span className="sm:hidden">DOCX</span>
     </button>
   );
 }

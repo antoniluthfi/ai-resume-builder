@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { GearIcon as Gear } from "@phosphor-icons/react/dist/ssr/Gear";
+import { XIcon as X } from "@phosphor-icons/react/dist/ssr/X";
 import { useResumeStore } from "@/store/resumeStore";
+import { secondaryButtonClass } from "@/lib/formStyles";
 import { ProviderSettings } from "./ProviderSettings";
 
 export function SettingsDrawer() {
@@ -10,33 +13,34 @@ export function SettingsDrawer() {
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-2 rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-      >
-        <span aria-hidden>⚙️</span>
-        Settings
-        {!hasKey && <span className="h-1.5 w-1.5 rounded-full bg-red-500" aria-label="API key required" />}
+      <button type="button" onClick={() => setOpen(true)} className={`relative ${secondaryButtonClass}`}>
+        <Gear size={16} weight="bold" />
+        <span className="hidden sm:inline">Settings</span>
+        {!hasKey && (
+          <span
+            className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-rose-500 ring-2 ring-white"
+            aria-label="API key required"
+          />
+        )}
       </button>
 
       {open && (
         <div className="fixed inset-0 z-50 flex justify-end">
           <div
-            className="absolute inset-0 bg-black/30"
+            className="absolute inset-0 bg-slate-950/30 backdrop-blur-[1px]"
             onClick={() => setOpen(false)}
             aria-hidden
           />
-          <div className="relative flex h-full w-80 flex-col gap-4 overflow-y-auto bg-white p-6 shadow-xl">
+          <div className="relative flex h-full w-full flex-col gap-4 overflow-y-auto bg-white p-6 shadow-2xl sm:w-96">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-gray-900">AI Settings</h2>
+              <h2 className="text-sm font-semibold text-slate-900">AI Settings</h2>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-slate-400 hover:text-slate-600"
                 aria-label="Close settings"
               >
-                ✕
+                <X size={18} />
               </button>
             </div>
             <ProviderSettings />

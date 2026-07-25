@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { FileArrowDownIcon as FileArrowDown } from "@phosphor-icons/react/dist/ssr/FileArrowDown";
 import { useResumeStore } from "@/store/resumeStore";
 import { ResumePdfDocument } from "./ResumePdfDocument";
 import { primaryButtonClass } from "@/lib/formStyles";
@@ -11,7 +12,8 @@ const PDFDownloadLink = dynamic(
     ssr: false,
     loading: () => (
       <span className={primaryButtonClass} aria-disabled>
-        Preparing PDF…
+        <FileArrowDown size={16} weight="bold" />
+        <span className="hidden sm:inline">Preparing PDF…</span>
       </span>
     ),
   }
@@ -31,7 +33,9 @@ export function PdfDownloadButton() {
     <PDFDownloadLink document={<ResumePdfDocument resume={exportResume} />} fileName={fileName}>
       {({ loading }) => (
         <span className={primaryButtonClass}>
-          {loading ? "Preparing PDF…" : "Download ATS-safe PDF"}
+          <FileArrowDown size={16} weight="bold" />
+          <span className="hidden sm:inline">{loading ? "Preparing PDF…" : "Download ATS-safe PDF"}</span>
+          <span className="sm:hidden">PDF</span>
         </span>
       )}
     </PDFDownloadLink>
