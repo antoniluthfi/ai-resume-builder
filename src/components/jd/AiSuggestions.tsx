@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useResumeStore } from "@/store/resumeStore";
 import {
   primaryButtonClass,
@@ -33,6 +34,8 @@ export function AiSuggestions({ jobDescription }: { jobDescription: string }) {
   const setAiSuggestions = useResumeStore((s) => s.setAiSuggestions);
   const setAiMissingSkills = useResumeStore((s) => s.setAiMissingSkills);
   const setAiKeywordMatch = useResumeStore((s) => s.setAiKeywordMatch);
+  const reviewedSuggestionPaths = useResumeStore((s) => s.reviewedSuggestionPaths);
+  const [noNewSuggestions, setNoNewSuggestions] = useState(false);
   const applySuggestion = useResumeStore((s) => s.applySuggestion);
   const dismissSuggestion = useResumeStore((s) => s.dismissSuggestion);
   const selectedProvider = useResumeStore((s) => s.selectedProvider);
@@ -48,6 +51,7 @@ export function AiSuggestions({ jobDescription }: { jobDescription: string }) {
     if (!apiKey) return;
     setAnalyzing(true);
     setAnalyzeError(null);
+    setNoNewSuggestions(false);
     try {
       const response = await fetch("/api/analyze-jd", {
         method: "POST",
@@ -58,12 +62,14 @@ export function AiSuggestions({ jobDescription }: { jobDescription: string }) {
       if (!response.ok) {
         throw new Error(data.error ?? "Analysis failed");
       }
-      setAiSuggestions(
-        data.suggestions.map((s: { path: string; original: string; suggested: string; reason: string }, i: number) => ({
+      const newSuggestions = data.suggestions
+        .filter((s: { path: string }) => !reviewedSuggestionPaths.includes(s.path))
+        .map((s: { path: string; original: string; suggested: string; reason: string }, i: number) => ({
           id: `${Date.now()}-${i}`,
           ...s,
-        }))
-      );
+        }));
+      setAiSuggestions(newSuggestions);
+      setNoNewSuggestions(newSuggestions.length === 0);
       setAiMissingSkills(data.missingSkills ?? []);
       setProjectRelevance(data.projectRelevance ?? []);
       setAiKeywordMatch(data.keywordMatch ?? null);
@@ -88,6 +94,12 @@ export function AiSuggestions({ jobDescription }: { jobDescription: string }) {
       </div>
 
       {analyzeError && <p className="text-xs text-rose-600">{analyzeError}</p>}
+
+      {noNewSuggestions && (
+        <p className="text-xs text-slate-400">
+          No further rewrite suggestions — this resume already reflects the job description well.
+        </p>
+      )}
 
       {aiMissingSkills.length > 0 && (
         <div>

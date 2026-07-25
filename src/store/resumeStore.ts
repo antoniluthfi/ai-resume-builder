@@ -104,6 +104,7 @@ interface ResumeState {
   aiSuggestions: AiSuggestion[];
   aiMissingSkills: RawMissingSkill[];
   aiKeywordMatch: RawKeywordMatch | null;
+  reviewedSuggestionPaths: string[];
   isAnalyzing: boolean;
   analyzeError: string | null;
   providerKeys: Partial<Record<LlmProvider, string>>;
@@ -141,6 +142,7 @@ interface ResumeState {
   setAiSuggestions: (suggestions: AiSuggestion[]) => void;
   setAiMissingSkills: (skills: RawMissingSkill[]) => void;
   setAiKeywordMatch: (match: RawKeywordMatch | null) => void;
+  markSuggestionReviewed: (path: string) => void;
   applySuggestion: (id: string) => void;
   dismissSuggestion: (id: string) => void;
   setAnalyzing: (isAnalyzing: boolean) => void;
@@ -166,6 +168,7 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
   aiSuggestions: [],
   aiMissingSkills: [],
   aiKeywordMatch: null,
+  reviewedSuggestionPaths: [],
   isAnalyzing: false,
   analyzeError: null,
   providerKeys: {},
@@ -199,7 +202,8 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
       return { resume };
     }),
 
-  setJobDescription: (jobDescription) => set({ jobDescription }),
+  setJobDescription: (jobDescription) =>
+    set((state) => (state.jobDescription === jobDescription ? {} : { jobDescription, reviewedSuggestionPaths: [] })),
 
   loadParsedResume: (parsed) => {
     get().pushUndoSnapshot();
@@ -365,10 +369,18 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
   setAiMissingSkills: (skills) => set({ aiMissingSkills: skills }),
   setAiKeywordMatch: (match) => set({ aiKeywordMatch: match }),
 
+  markSuggestionReviewed: (path) =>
+    set((state) =>
+      state.reviewedSuggestionPaths.includes(path)
+        ? {}
+        : { reviewedSuggestionPaths: [...state.reviewedSuggestionPaths, path] }
+    ),
+
   applySuggestion: (id) => {
     const suggestion = get().aiSuggestions.find((s) => s.id === id);
     if (!suggestion) return;
     get().pushUndoSnapshot();
+    get().markSuggestionReviewed(suggestion.path);
 
     set((state) => {
       const resume = applyPathValue(state.resume, suggestion.path, suggestion.suggested);
@@ -380,8 +392,11 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
     });
   },
 
-  dismissSuggestion: (id) =>
-    set((state) => ({ aiSuggestions: state.aiSuggestions.filter((s) => s.id !== id) })),
+  dismissSuggestion: (id) => {
+    const suggestion = get().aiSuggestions.find((s) => s.id === id);
+    if (suggestion) get().markSuggestionReviewed(suggestion.path);
+    set((state) => ({ aiSuggestions: state.aiSuggestions.filter((s) => s.id !== id) }));
+  },
 
   setAnalyzing: (isAnalyzing) => set({ isAnalyzing }),
   setAnalyzeError: (analyzeError) => set({ analyzeError }),
