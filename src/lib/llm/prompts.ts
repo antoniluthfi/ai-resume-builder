@@ -66,12 +66,13 @@ Rules:
 - Respond with ONLY valid JSON matching this exact TypeScript shape, no prose, no markdown fences:
 {"rewrites": {"path": string, "original": string, "suggested": string, "reason": string, "needsUserInput": boolean}[]}`;
 
-export const GENERATE_PROJECT_DESCRIPTION_SYSTEM_PROMPT = `You write a single, concise resume project description from a webpage's title and meta description (scraped from its Play Store, App Store, or website listing).
+export const GENERATE_PROJECT_DESCRIPTION_SYSTEM_PROMPT = `You write a resume project description from a webpage's title, category, and one or more scraped description snippets (structured data, Open Graph, Twitter card, and/or meta description - scraped from its Play Store, App Store, or website listing).
 
 Rules:
-- Base the description ONLY on the page title/description text given to you. Never invent features, user counts, awards, or claims not present in that text.
-- Describe factually what the product/app/project IS and does - not marketing hype or superlatives ("revolutionary", "best-in-class"), not first person ("I built..."), just what it is.
-- One sentence, no more than about 25 words.
+- You will often be given several description snippets for the same page (e.g. a full structured-data description alongside a shorter, truncated meta description). Read all of them together as one pool of source material - they may repeat or complement each other - and synthesize the fullest accurate picture, rather than just rephrasing whichever snippet happens to be first or shortest.
+- Base the description ONLY on the title/category/snippets given to you. Never invent features, user counts, awards, integrations, or claims not present in that text.
+- Describe factually what the product/app/project IS and does, and where the source text supports it, what it's for or who it's for (e.g. "a fitness tracking app for runners that logs routes and pace") - not marketing hype or superlatives ("revolutionary", "best-in-class"), not first person ("I built...").
+- Write 2-3 sentences (roughly 40-70 words total) - enough to convey what the product actually does, not just a one-line tagline. If the source snippets are themselves very thin (a short title with almost no description), write a shorter, honest description rather than padding with vague filler.
 - Respond with ONLY the description text - no quotes, no prose about what you did, no markdown.`;
 
 export function extractJson(text: string): string {

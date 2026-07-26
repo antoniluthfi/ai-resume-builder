@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getLlmClient } from "@/lib/llm";
 import { isLlmProvider } from "@/lib/llm/types";
 import { friendlyLlmErrorMessage } from "@/lib/llm/errorMessage";
-import { fetchPageMetadata } from "@/lib/scrapeMetadata";
+import { fetchPageMetadata, PageMetadata } from "@/lib/scrapeMetadata";
 
 interface GenerateProjectDescriptionRequestBody {
   url: string;
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Missing API key for the selected provider" }, { status: 400 });
   }
 
-  let metadata: { title: string; description: string };
+  let metadata: PageMetadata;
   try {
     metadata = await fetchPageMetadata(url);
   } catch (error) {
@@ -40,10 +40,21 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const description = await getLlmClient(provider).generateProjectDescription(
-      apiKey,
-      `Page title: ${metadata.title}\nPage description: ${metadata.description}`
-    );
+    const descriptionSnippets = metadata.description
+      ? metadata.description
+          .split("\n")
+          .map((snippet, i) => `${i + 1}. ${snippet}`)
+          .join("\n")
+      : "(none found)";
+    const pageText = [
+      `Page title: ${metadata.title || "(none found)"}`,
+      metadata.category ? `Category: ${metadata.category}` : null,
+      `Description snippets:\n${descriptionSnippets}`,
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    const description = await getLlmClient(provider).generateProjectDescription(apiKey, pageText);
     return NextResponse.json({ description });
   } catch (error) {
     console.error("generate-project-description failed", error);
