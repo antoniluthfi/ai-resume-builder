@@ -20,10 +20,19 @@ export function normalizeAnalyzeResult(parsed: Partial<AnalyzeJdResult>): Analyz
         ? 0
         : Math.round((matched.length / (matched.length + missing.length)) * 100);
 
+  const projectRelevance = Array.isArray(parsed.projectRelevance)
+    ? parsed.projectRelevance.map((r) => ({
+        index: typeof r?.index === "number" ? r.index : 0,
+        relevanceScore:
+          typeof r?.relevanceScore === "number" ? Math.max(0, Math.min(100, r.relevanceScore)) : 0,
+        reason: r?.reason ?? "",
+      }))
+    : [];
+
   return {
     missingSkills,
     suggestions: Array.isArray(parsed.suggestions) ? parsed.suggestions : [],
-    projectRelevance: Array.isArray(parsed.projectRelevance) ? parsed.projectRelevance : [],
+    projectRelevance,
     keywordMatch: { matchPercentage, matched, missing },
   };
 }

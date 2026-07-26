@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useResumeStore } from "@/store/resumeStore";
 import { useToastStore } from "@/store/toastStore";
 import { primaryButtonClass, removeButtonClass, smallButtonClass } from "@/lib/formStyles";
+import { scoreColorClass } from "@/lib/scoreDisplay";
 import { AccordionSection } from "@/components/forms/AccordionSection";
 
 function describeSuggestionPath(path: string): string {
@@ -153,39 +154,40 @@ export function AiSuggestions({ jobDescription }: { jobDescription: string }) {
 
       {projectRelevance.length > 0 && (
         <div>
-          <p className="text-xs font-medium text-slate-600 mb-1">Project relevance for this job:</p>
+          <p className="text-xs font-medium text-slate-600 mb-1">
+            Project relevance for this job — top {" "}
+            {Math.min(4, projectRelevance.length)} most relevant stay visible:
+          </p>
           <div className="space-y-2">
-            {projectRelevance.map((pr) => {
-              const project = resume.projects.find((p) => p.id === pr.projectId);
-              if (!project) return null;
-              const hidden = hiddenProjectIds.includes(pr.projectId);
-              return (
-                <div
-                  key={pr.projectId}
-                  className="flex items-start justify-between gap-3 rounded-lg border border-slate-100 p-2"
-                >
-                  <div>
-                    <p className="text-xs font-medium text-slate-800">
-                      {project.name || "Untitled project"}{" "}
-                      {pr.relevant ? (
-                        <span className="text-emerald-600">· Relevant</span>
-                      ) : (
-                        <span className="text-amber-600">· Maybe not relevant</span>
-                      )}
-                    </p>
-                    <p className="text-xs text-slate-500 italic">{pr.reason}</p>
+            {[...projectRelevance]
+              .sort((a, b) => b.relevanceScore - a.relevanceScore)
+              .map((pr) => {
+                const project = resume.projects.find((p) => p.id === pr.projectId);
+                if (!project) return null;
+                const hidden = hiddenProjectIds.includes(pr.projectId);
+                return (
+                  <div
+                    key={pr.projectId}
+                    className="flex items-start justify-between gap-3 rounded-lg border border-slate-100 p-2"
+                  >
+                    <div>
+                      <p className="text-xs font-medium text-slate-800">
+                        {project.name || "Untitled project"}{" "}
+                        <span className={scoreColorClass(pr.relevanceScore)}>· {pr.relevanceScore}/100</span>
+                      </p>
+                      <p className="text-xs text-slate-500 italic">{pr.reason}</p>
+                    </div>
+                    <label className="flex shrink-0 items-center gap-1 text-xs text-slate-600">
+                      <input
+                        type="checkbox"
+                        checked={!hidden}
+                        onChange={() => toggleProjectVisibility(pr.projectId)}
+                      />
+                      Include
+                    </label>
                   </div>
-                  <label className="flex shrink-0 items-center gap-1 text-xs text-slate-600">
-                    <input
-                      type="checkbox"
-                      checked={!hidden}
-                      onChange={() => toggleProjectVisibility(pr.projectId)}
-                    />
-                    Include
-                  </label>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
         </div>
       )}

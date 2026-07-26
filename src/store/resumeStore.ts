@@ -15,6 +15,8 @@ const STORAGE_KEY = "ai-resume-builder:resume";
 const PROVIDER_KEYS_STORAGE_KEY = "ai-resume-builder:provider-keys";
 const VERSIONS_STORAGE_KEY = "ai-resume-builder:versions";
 const MAX_UNDO_ENTRIES = 10;
+const MAX_VISIBLE_PROJECTS_AFTER_TAILORING = 4;
+const MIN_RELEVANCE_SCORE = 30;
 
 /** Migrates project entries saved before "link" (single string) became "links" (string[]). */
 function migrateProjectLinks(resume: ResumeData): ResumeData {
@@ -90,7 +92,7 @@ export interface AiSuggestion {
 
 export interface ProjectRelevance {
   projectId: string;
-  relevant: boolean;
+  relevanceScore: number;
   reason: string;
 }
 
@@ -466,14 +468,16 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
       .map((r) => {
         const project = projects[r.index];
         if (!project) return null;
-        return { projectId: project.id, relevant: r.relevant, reason: r.reason };
+        return { projectId: project.id, relevanceScore: r.relevanceScore, reason: r.reason };
       })
       .filter((r): r is ProjectRelevance => r !== null);
 
-    set({
-      projectRelevance,
-      hiddenProjectIds: projectRelevance.filter((r) => !r.relevant).map((r) => r.projectId),
-    });
+    const hiddenProjectIds = [...projectRelevance]
+      .sort((a, b) => b.relevanceScore - a.relevanceScore)
+      .filter((r, i) => i >= MAX_VISIBLE_PROJECTS_AFTER_TAILORING || r.relevanceScore < MIN_RELEVANCE_SCORE)
+      .map((r) => r.projectId);
+
+    set({ projectRelevance, hiddenProjectIds });
   },
 
   toggleProjectVisibility: (projectId) =>

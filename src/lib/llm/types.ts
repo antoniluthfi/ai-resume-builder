@@ -25,7 +25,7 @@ export interface RawAiSuggestion {
 
 export interface RawProjectRelevance {
   index: number;
-  relevant: boolean;
+  relevanceScore: number;
   reason: string;
 }
 
