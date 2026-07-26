@@ -1,7 +1,7 @@
 import "server-only";
 import { GoogleGenAI } from "@google/genai";
 import { ParsedResumeData, ResumeData } from "@/types/resume";
-import { AnalyzeJdResult, LlmClient, RawBulletIssue, RawBulletRewrite } from "./types";
+import { AnalyzeJdResult, LlmClient, RawBulletIssue, RawBulletRewrite, RawProjectLinkContext } from "./types";
 import {
   ANALYZE_JD_SYSTEM_PROMPT,
   COVER_LETTER_SYSTEM_PROMPT,
@@ -93,9 +93,15 @@ async function generateCoverLetter(
 async function rewriteBullets(
   apiKey: string,
   resume: ResumeData,
-  issues: RawBulletIssue[]
+  issues: RawBulletIssue[],
+  projectLinkContext?: Record<number, RawProjectLinkContext>
 ): Promise<RawBulletRewrite[]> {
   const gemini = new GoogleGenAI({ apiKey });
+
+  const linkContextText =
+    projectLinkContext && Object.keys(projectLinkContext).length > 0
+      ? `\n\nFETCHED PROJECT LINK CONTEXT (by project index):\n${JSON.stringify(projectLinkContext, null, 2)}`
+      : "";
 
   const response = await gemini.models.generateContent({
     model: MODEL,
@@ -105,7 +111,7 @@ async function rewriteBullets(
         role: "user",
         parts: [
           {
-            text: `RESUME JSON:\n${JSON.stringify(resume, null, 2)}\n\nFLAGGED BULLETS:\n${JSON.stringify(issues, null, 2)}`,
+            text: `RESUME JSON:\n${JSON.stringify(resume, null, 2)}\n\nFLAGGED BULLETS:\n${JSON.stringify(issues, null, 2)}${linkContextText}`,
           },
         ],
       },

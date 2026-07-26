@@ -1,7 +1,7 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { ParsedResumeData, ResumeData } from "@/types/resume";
-import { AnalyzeJdResult, LlmClient, RawBulletIssue, RawBulletRewrite } from "./types";
+import { AnalyzeJdResult, LlmClient, RawBulletIssue, RawBulletRewrite, RawProjectLinkContext } from "./types";
 import {
   ANALYZE_JD_SYSTEM_PROMPT,
   COVER_LETTER_SYSTEM_PROMPT,
@@ -103,9 +103,15 @@ async function generateCoverLetter(
 async function rewriteBullets(
   apiKey: string,
   resume: ResumeData,
-  issues: RawBulletIssue[]
+  issues: RawBulletIssue[],
+  projectLinkContext?: Record<number, RawProjectLinkContext>
 ): Promise<RawBulletRewrite[]> {
   const anthropic = new Anthropic({ apiKey });
+
+  const linkContextText =
+    projectLinkContext && Object.keys(projectLinkContext).length > 0
+      ? `\n\nFETCHED PROJECT LINK CONTEXT (by project index):\n${JSON.stringify(projectLinkContext, null, 2)}`
+      : "";
 
   const message = await anthropic.messages.create({
     model: MODEL,
@@ -114,7 +120,7 @@ async function rewriteBullets(
     messages: [
       {
         role: "user",
-        content: `RESUME JSON:\n${JSON.stringify(resume, null, 2)}\n\nFLAGGED BULLETS:\n${JSON.stringify(issues, null, 2)}`,
+        content: `RESUME JSON:\n${JSON.stringify(resume, null, 2)}\n\nFLAGGED BULLETS:\n${JSON.stringify(issues, null, 2)}${linkContextText}`,
       },
     ],
   });

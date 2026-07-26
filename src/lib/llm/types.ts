@@ -62,11 +62,21 @@ export interface RawBulletRewrite {
   needsUserInput: boolean;
 }
 
+export interface RawProjectLinkContext {
+  title: string;
+  description: string;
+}
+
 export interface LlmClient {
   analyzeJobMatch(apiKey: string, resume: ResumeData, jobDescription: string): Promise<AnalyzeJdResult>;
   parseResumeFromPdf(apiKey: string, base64Pdf: string): Promise<ParsedResumeData>;
   generateCoverLetter(apiKey: string, resume: ResumeData, jobDescription: string): Promise<string>;
-  rewriteBullets(apiKey: string, resume: ResumeData, issues: RawBulletIssue[]): Promise<RawBulletRewrite[]>;
+  rewriteBullets(
+    apiKey: string,
+    resume: ResumeData,
+    issues: RawBulletIssue[],
+    projectLinkContext?: Record<number, RawProjectLinkContext>
+  ): Promise<RawBulletRewrite[]>;
   generateProjectDescription(apiKey: string, pageText: string): Promise<string>;
 }
 
