@@ -112,7 +112,9 @@ export function AiSuggestions({ jobDescription }: { jobDescription: string }) {
           </p>
           <div className="space-y-2">
             {aiMissingSkills.map((m) => {
-              const alreadyAdded = resume.skills.includes(m.skill);
+              const alreadyAdded = resume.skills.some(
+                (s) => s.toLowerCase() === m.skill.toLowerCase(),
+              );
               const confidentlyImplied = m.impliedBy.length > 0;
               return (
                 <div
