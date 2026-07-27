@@ -67,10 +67,15 @@ export interface RawProjectLinkContext {
   description: string;
 }
 
+export interface CoverLetterResult {
+  subject: string;
+  body: string;
+}
+
 export interface LlmClient {
   analyzeJobMatch(apiKey: string, resume: ResumeData, jobDescription: string): Promise<AnalyzeJdResult>;
   parseResumeFromPdf(apiKey: string, base64Pdf: string): Promise<ParsedResumeData>;
-  generateCoverLetter(apiKey: string, resume: ResumeData, jobDescription: string): Promise<string>;
+  generateCoverLetter(apiKey: string, resume: ResumeData, jobDescription: string): Promise<CoverLetterResult>;
   rewriteBullets(
     apiKey: string,
     resume: ResumeData,

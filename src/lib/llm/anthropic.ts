@@ -1,7 +1,14 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { ParsedResumeData, ResumeData } from "@/types/resume";
-import { AnalyzeJdResult, LlmClient, RawBulletIssue, RawBulletRewrite, RawProjectLinkContext } from "./types";
+import {
+  AnalyzeJdResult,
+  CoverLetterResult,
+  LlmClient,
+  RawBulletIssue,
+  RawBulletRewrite,
+  RawProjectLinkContext,
+} from "./types";
 import {
   ANALYZE_JD_SYSTEM_PROMPT,
   COVER_LETTER_SYSTEM_PROMPT,
@@ -10,7 +17,12 @@ import {
   REWRITE_BULLET_SYSTEM_PROMPT,
   extractJson,
 } from "./prompts";
-import { normalizeAnalyzeResult, normalizeBulletRewrites, normalizeParsedResume } from "./normalize";
+import {
+  normalizeAnalyzeResult,
+  normalizeBulletRewrites,
+  normalizeCoverLetter,
+  normalizeParsedResume,
+} from "./normalize";
 
 const MODEL = "claude-haiku-4-5-20251001";
 
@@ -77,7 +89,7 @@ async function generateCoverLetter(
   apiKey: string,
   resume: ResumeData,
   jobDescription: string
-): Promise<string> {
+): Promise<CoverLetterResult> {
   const anthropic = new Anthropic({ apiKey });
 
   const message = await anthropic.messages.create({
@@ -97,7 +109,7 @@ async function generateCoverLetter(
     throw new Error("No text response from Claude");
   }
 
-  return textBlock.text.trim();
+  return normalizeCoverLetter(JSON.parse(extractJson(textBlock.text)));
 }
 
 async function rewriteBullets(

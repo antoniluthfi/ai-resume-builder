@@ -1,7 +1,14 @@
 import "server-only";
 import { GoogleGenAI } from "@google/genai";
 import { ParsedResumeData, ResumeData } from "@/types/resume";
-import { AnalyzeJdResult, LlmClient, RawBulletIssue, RawBulletRewrite, RawProjectLinkContext } from "./types";
+import {
+  AnalyzeJdResult,
+  CoverLetterResult,
+  LlmClient,
+  RawBulletIssue,
+  RawBulletRewrite,
+  RawProjectLinkContext,
+} from "./types";
 import {
   ANALYZE_JD_SYSTEM_PROMPT,
   COVER_LETTER_SYSTEM_PROMPT,
@@ -10,7 +17,12 @@ import {
   REWRITE_BULLET_SYSTEM_PROMPT,
   extractJson,
 } from "./prompts";
-import { normalizeAnalyzeResult, normalizeBulletRewrites, normalizeParsedResume } from "./normalize";
+import {
+  normalizeAnalyzeResult,
+  normalizeBulletRewrites,
+  normalizeCoverLetter,
+  normalizeParsedResume,
+} from "./normalize";
 
 const MODEL = "gemini-flash-latest";
 
@@ -67,12 +79,12 @@ async function generateCoverLetter(
   apiKey: string,
   resume: ResumeData,
   jobDescription: string
-): Promise<string> {
+): Promise<CoverLetterResult> {
   const gemini = new GoogleGenAI({ apiKey });
 
   const response = await gemini.models.generateContent({
     model: MODEL,
-    config: { systemInstruction: COVER_LETTER_SYSTEM_PROMPT },
+    config: { systemInstruction: COVER_LETTER_SYSTEM_PROMPT, responseMimeType: "application/json" },
     contents: [
       {
         role: "user",
@@ -87,7 +99,7 @@ async function generateCoverLetter(
 
   const text = response.text;
   if (!text) throw new Error("No text response from Gemini");
-  return text.trim();
+  return normalizeCoverLetter(JSON.parse(extractJson(text)));
 }
 
 async function rewriteBullets(

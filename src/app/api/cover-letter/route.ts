@@ -36,8 +36,12 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const coverLetter = await getLlmClient(provider).generateCoverLetter(apiKey, resume, jobDescription);
-    return NextResponse.json({ coverLetter });
+    const { subject, body: coverLetter } = await getLlmClient(provider).generateCoverLetter(
+      apiKey,
+      resume,
+      jobDescription
+    );
+    return NextResponse.json({ subject, coverLetter });
   } catch (error) {
     console.error("cover-letter failed", error);
     return NextResponse.json(

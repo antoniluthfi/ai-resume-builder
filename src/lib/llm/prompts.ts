@@ -53,7 +53,10 @@ Then write the letter:
 - MUST end with a closing line ("Best regards," or "Sincerely,") followed by the candidate's name from personalInfo.name on the next line.
 - Total length: 3-4 short paragraphs between the greeting and closing, no more than about 300 words total.
 - Do not include a letterhead, date, or postal address block - just the greeting, body paragraphs, and closing.
-- Respond with ONLY the cover letter text (greeting through closing signature), no prose about what you did, no markdown fences, no JSON.`;
+- Email "subject" line: first, carefully check whether the job description itself specifies a required or requested subject-line format for applicants (e.g. "please use the subject line: Application - [Position] - [Your Name]", "subject format: ...", instructions inside an email-to-apply block). If it does, follow that exact pattern, filled in with the candidate's real name/role/position from the resume/JD - never invent a placeholder value it doesn't ask for. If the job description does NOT specify any subject format, write a short, professional, sensible subject line yourself (e.g. "Application for {position} - {candidate name}"), including the job title and candidate's name when natural.
+- Respond with ONLY valid JSON matching this exact TypeScript shape, no prose, no markdown fences:
+{"subject": string, "body": string}
+"body" is the full cover letter text (greeting through closing signature) as described above.`;
 
 export const REWRITE_BULLET_SYSTEM_PROMPT = `You rewrite specific resume bullets that a local style checker flagged as weak, for a job seeker who will use your rewrite as-is on their real resume - many of these are self-directed portfolio projects, and the candidate is targeting remote roles at US/international companies.
 

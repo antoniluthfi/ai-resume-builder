@@ -13,6 +13,7 @@ export function CoverLetterPanel({ jobDescription }: { jobDescription: string })
   const selectedProvider = useResumeStore((s) => s.selectedProvider);
   const apiKey = useResumeStore((s) => s.providerKeys[s.selectedProvider]) ?? "";
   const [coverLetter, setCoverLetter] = useState("");
+  const [subject, setSubject] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -35,6 +36,10 @@ export function CoverLetterPanel({ jobDescription }: { jobDescription: string })
         throw new Error(data.error ?? "Cover letter generation failed");
       }
       setCoverLetter(data.coverLetter ?? "");
+      setSubject(
+        data.subject?.trim() ||
+          `Application${resume.personalInfo.title ? ` for ${resume.personalInfo.title}` : ""} — ${resume.personalInfo.name || ""}`
+      );
       if (!recipientEmail.trim()) {
         const match = jobDescription.match(EMAIL_PATTERN);
         if (match) setRecipientEmail(match[0]);
@@ -66,7 +71,6 @@ export function CoverLetterPanel({ jobDescription }: { jobDescription: string })
   }
 
   function handleComposeEmail() {
-    const subject = `Application${resume.personalInfo.title ? ` for ${resume.personalInfo.title}` : ""} — ${resume.personalInfo.name || ""}`;
     const mailto = `mailto:${recipientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(coverLetter)}`;
     window.location.href = mailto;
   }
@@ -88,6 +92,15 @@ export function CoverLetterPanel({ jobDescription }: { jobDescription: string })
 
       {coverLetter && (
         <div className="space-y-2">
+          <div>
+            <label className="block text-xs font-medium text-slate-600 mb-1">Email subject</label>
+            <input
+              type="text"
+              className={inputClass}
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+            />
+          </div>
           <textarea
             className={inputClass}
             rows={10}

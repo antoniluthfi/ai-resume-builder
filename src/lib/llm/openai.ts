@@ -1,7 +1,14 @@
 import "server-only";
 import OpenAI from "openai";
 import { ParsedResumeData, ResumeData } from "@/types/resume";
-import { AnalyzeJdResult, LlmClient, RawBulletIssue, RawBulletRewrite, RawProjectLinkContext } from "./types";
+import {
+  AnalyzeJdResult,
+  CoverLetterResult,
+  LlmClient,
+  RawBulletIssue,
+  RawBulletRewrite,
+  RawProjectLinkContext,
+} from "./types";
 import {
   ANALYZE_JD_SYSTEM_PROMPT,
   COVER_LETTER_SYSTEM_PROMPT,
@@ -10,7 +17,12 @@ import {
   REWRITE_BULLET_SYSTEM_PROMPT,
   extractJson,
 } from "./prompts";
-import { normalizeAnalyzeResult, normalizeBulletRewrites, normalizeParsedResume } from "./normalize";
+import {
+  normalizeAnalyzeResult,
+  normalizeBulletRewrites,
+  normalizeCoverLetter,
+  normalizeParsedResume,
+} from "./normalize";
 
 const MODEL = "gpt-5.4-mini";
 
@@ -68,12 +80,13 @@ async function generateCoverLetter(
   apiKey: string,
   resume: ResumeData,
   jobDescription: string
-): Promise<string> {
+): Promise<CoverLetterResult> {
   const openai = new OpenAI({ apiKey });
 
   const response = await openai.responses.create({
     model: MODEL,
     instructions: COVER_LETTER_SYSTEM_PROMPT,
+    text: { format: { type: "json_object" } },
     input: [
       {
         role: "user",
@@ -82,7 +95,7 @@ async function generateCoverLetter(
     ],
   });
 
-  return response.output_text.trim();
+  return normalizeCoverLetter(JSON.parse(extractJson(response.output_text)));
 }
 
 async function rewriteBullets(

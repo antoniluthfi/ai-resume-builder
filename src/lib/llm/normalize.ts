@@ -1,5 +1,5 @@
 import { ParsedResumeData } from "@/types/resume";
-import { AnalyzeJdResult, RawBulletRewrite } from "./types";
+import { AnalyzeJdResult, CoverLetterResult, RawBulletRewrite } from "./types";
 
 export function normalizeAnalyzeResult(parsed: Partial<AnalyzeJdResult>): AnalyzeJdResult {
   const missingSkills = Array.isArray(parsed.missingSkills)
@@ -48,6 +48,13 @@ export function normalizeBulletRewrites(parsed: { rewrites?: unknown }): RawBull
       needsUserInput: r?.needsUserInput === true,
     }))
     .filter((r) => r.path && r.suggested.trim() && r.suggested.trim() !== r.original.trim());
+}
+
+export function normalizeCoverLetter(parsed: Partial<CoverLetterResult>): CoverLetterResult {
+  return {
+    subject: typeof parsed.subject === "string" ? parsed.subject.trim() : "",
+    body: typeof parsed.body === "string" ? parsed.body.trim() : "",
+  };
 }
 
 export function normalizeParsedResume(parsed: Partial<ParsedResumeData>): ParsedResumeData {
