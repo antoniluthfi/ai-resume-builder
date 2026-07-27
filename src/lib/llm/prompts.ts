@@ -16,7 +16,7 @@ Valid "path" values (must match the resume JSON given to you exactly):
 - "summary"
 - "experience[<index>].bullets[<index>]"
 - "projects[<index>].bullets[<index>]" (only if that project has bullets)
-Keep "suggested" the same general length/tone as "original" (except "personalInfo.title", which is just a short headline). Limit "suggestions" to at most 6 entries total, prioritizing the highest-impact keyword gaps.`;
+Keep "suggested" the same general length/tone as "original" (except "personalInfo.title", which is just a short headline). Limit "suggestions" to at most 6 entries total, prioritizing the highest-impact keyword gaps. Weigh "experience[...]" and "projects[...]" bullets equally by relevance - do not skip a project bullet in favor of a weaker experience bullet just because it's a project; if both sections have genuine keyword gaps, split the 6 slots across them instead of filling all of them from one section.`;
 
 export const PARSE_RESUME_SYSTEM_PROMPT = `You extract structured data from an uploaded resume PDF, which may use any layout (single column, multi-column, tables).
 
