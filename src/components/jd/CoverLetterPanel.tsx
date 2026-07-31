@@ -5,6 +5,7 @@ import { useResumeStore } from "@/store/resumeStore";
 import { useToastStore } from "@/store/toastStore";
 import { inputClass, primaryButtonClass, smallButtonClass } from "@/lib/formStyles";
 import { AccordionSection } from "@/components/forms/AccordionSection";
+import { CoverLetterPdfDownloadButton } from "@/components/pdf/CoverLetterPdfDownloadButton";
 
 const EMAIL_PATTERN = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
 
@@ -114,6 +115,14 @@ export function CoverLetterPanel({ jobDescription }: { jobDescription: string })
             <button className={smallButtonClass} onClick={handleDownload}>
               Download .txt
             </button>
+            <CoverLetterPdfDownloadButton
+              senderName={resume.personalInfo.name}
+              senderContact={[resume.personalInfo.email, resume.personalInfo.phone, resume.personalInfo.location]
+                .filter(Boolean)
+                .join(" | ")}
+              subject={subject}
+              body={coverLetter}
+            />
           </div>
 
           <div className="rounded-lg border border-slate-100 p-3 space-y-2">
