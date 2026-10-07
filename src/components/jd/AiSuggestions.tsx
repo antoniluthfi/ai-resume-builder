@@ -6,6 +6,7 @@ import { useToastStore } from "@/store/toastStore";
 import { primaryButtonClass, removeButtonClass, smallButtonClass } from "@/lib/formStyles";
 import { scoreColorClass } from "@/lib/scoreDisplay";
 import { AccordionSection } from "@/components/forms/AccordionSection";
+import { withoutPhoto } from "@/lib/photo";
 
 function describeSuggestionPath(path: string): string {
   if (path === "personalInfo.title") return "Professional title";
@@ -54,7 +55,7 @@ export function AiSuggestions({ jobDescription }: { jobDescription: string }) {
       const response = await fetch("/api/analyze-jd", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ jobDescription, resume, provider: selectedProvider, apiKey }),
+        body: JSON.stringify({ jobDescription, resume: withoutPhoto(resume), provider: selectedProvider, apiKey }),
       });
       const data = await response.json();
       if (!response.ok) {

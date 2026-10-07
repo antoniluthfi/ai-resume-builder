@@ -235,9 +235,10 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
 
   loadParsedResume: (parsed) => {
     get().pushUndoSnapshot();
-    set(() => {
+    set((state) => {
       const resume: ResumeData = {
-        personalInfo: parsed.personalInfo,
+        // Parsing never yields a photo, so keep the one the user already uploaded.
+        personalInfo: { ...parsed.personalInfo, photo: state.resume.personalInfo.photo },
         summary: parsed.summary,
         skills: Array.from(new Set(parsed.skills)),
         experience: parsed.experience.map((entry) => ({ ...entry, id: makeId() })),

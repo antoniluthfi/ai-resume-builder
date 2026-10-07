@@ -1,9 +1,38 @@
-import { AlignmentType, Document, HeadingLevel, Paragraph, TextRun } from "docx";
+import {
+  AlignmentType,
+  Document,
+  HeadingLevel,
+  HorizontalPositionAlign,
+  HorizontalPositionRelativeFrom,
+  ImageRun,
+  Paragraph,
+  TextRun,
+  TextWrappingSide,
+  TextWrappingType,
+  VerticalPositionRelativeFrom,
+} from "docx";
 import { ResumeData } from "@/types/resume";
+import { photoDataUrlToBytes } from "@/lib/photo";
 import { getResumeSectionOrder, ResumeSectionKey } from "@/lib/resumeSectionOrder";
 
 const MUTED_COLOR = "4b5563";
 const TITLE_COLOR = "374151";
+const PHOTO_SIZE_PX = 85;
+
+/** Floats the photo at the top-right margin so the header text keeps a plain, linear flow for ATS parsers. */
+function photoRun(dataUrl: string): ImageRun {
+  return new ImageRun({
+    type: "jpg",
+    data: photoDataUrlToBytes(dataUrl),
+    transformation: { width: PHOTO_SIZE_PX, height: PHOTO_SIZE_PX },
+    floating: {
+      horizontalPosition: { relative: HorizontalPositionRelativeFrom.MARGIN, align: HorizontalPositionAlign.RIGHT },
+      verticalPosition: { relative: VerticalPositionRelativeFrom.PARAGRAPH, offset: 0 },
+      wrap: { type: TextWrappingType.SQUARE, side: TextWrappingSide.LEFT },
+      margins: { left: 114300 },
+    },
+  });
+}
 
 function heading(text: string): Paragraph {
   return new Paragraph({
@@ -36,7 +65,10 @@ export function buildResumeDocx(resume: ResumeData): Document {
 
   const children: Paragraph[] = [
     new Paragraph({
-      children: [new TextRun({ text: personalInfo.name || "Your Name", bold: true, size: 36 })],
+      children: [
+        ...(personalInfo.photo ? [photoRun(personalInfo.photo)] : []),
+        new TextRun({ text: personalInfo.name || "Your Name", bold: true, size: 36 }),
+      ],
     }),
   ];
 

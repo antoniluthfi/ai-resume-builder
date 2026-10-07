@@ -126,19 +126,29 @@ export function ResumePreview() {
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-900 space-y-4 sm:p-8 [box-shadow:var(--shadow-card)]">
-      <div>
-        <h1 className="text-xl font-bold">{personalInfo.name || "Your Name"}</h1>
-        {personalInfo.title && (
-          <p className="text-sm font-medium text-slate-700">{personalInfo.title}</p>
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <h1 className="text-xl font-bold">{personalInfo.name || "Your Name"}</h1>
+          {personalInfo.title && (
+            <p className="text-sm font-medium text-slate-700">{personalInfo.title}</p>
+          )}
+          <p className="text-xs text-slate-600">
+            {[personalInfo.email, personalInfo.phone, personalInfo.location]
+              .filter(Boolean)
+              .join(" · ")}
+          </p>
+          <p className="text-xs text-slate-600">
+            {[personalInfo.linkedin, personalInfo.website].filter(Boolean).join(" · ")}
+          </p>
+        </div>
+        {personalInfo.photo && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={personalInfo.photo}
+            alt=""
+            className="h-20 w-20 shrink-0 rounded-md border border-slate-200 object-cover"
+          />
         )}
-        <p className="text-xs text-slate-600">
-          {[personalInfo.email, personalInfo.phone, personalInfo.location]
-            .filter(Boolean)
-            .join(" · ")}
-        </p>
-        <p className="text-xs text-slate-600">
-          {[personalInfo.linkedin, personalInfo.website].filter(Boolean).join(" · ")}
-        </p>
       </div>
 
       {getResumeSectionOrder(resume).map((key) => sectionNodes[key])}

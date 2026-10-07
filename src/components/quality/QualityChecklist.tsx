@@ -6,6 +6,7 @@ import { useToastStore } from "@/store/toastStore";
 import { checkResumeQuality } from "@/lib/resumeQualityCheck";
 import { AccordionSection } from "@/components/forms/AccordionSection";
 import { primaryButtonClass, removeButtonClass, smallButtonClass } from "@/lib/formStyles";
+import { withoutPhoto } from "@/lib/photo";
 
 export function QualityChecklist() {
   const resume = useResumeStore((s) => s.resume);
@@ -38,7 +39,7 @@ export function QualityChecklist() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          resume,
+          resume: withoutPhoto(resume),
           issues: issues.map((issue) => ({ path: issue.path, text: issue.text, problems: issue.problems })),
           provider: selectedProvider,
           apiKey,

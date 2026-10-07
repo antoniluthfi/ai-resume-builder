@@ -6,6 +6,8 @@ export interface PersonalInfo {
   location: string;
   linkedin?: string;
   website?: string;
+  /** JPEG data URL; optional profile photo shown in the resume header. */
+  photo?: string;
 }
 
 export interface ExperienceEntry {

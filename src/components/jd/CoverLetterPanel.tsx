@@ -6,6 +6,7 @@ import { useToastStore } from "@/store/toastStore";
 import { inputClass, primaryButtonClass, smallButtonClass } from "@/lib/formStyles";
 import { AccordionSection } from "@/components/forms/AccordionSection";
 import { CoverLetterPdfDownloadButton } from "@/components/pdf/CoverLetterPdfDownloadButton";
+import { withoutPhoto } from "@/lib/photo";
 
 const EMAIL_PATTERN = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
 
@@ -30,7 +31,7 @@ export function CoverLetterPanel({ jobDescription }: { jobDescription: string })
       const response = await fetch("/api/cover-letter", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ jobDescription, resume, provider: selectedProvider, apiKey }),
+        body: JSON.stringify({ jobDescription, resume: withoutPhoto(resume), provider: selectedProvider, apiKey }),
       });
       const data = await response.json();
       if (!response.ok) {

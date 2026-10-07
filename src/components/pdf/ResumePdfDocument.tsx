@@ -1,4 +1,4 @@
-import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { Document, Image, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import { ResumeData } from "@/types/resume";
 import { getResumeSectionOrder, ResumeSectionKey } from "@/lib/resumeSectionOrder";
 
@@ -9,6 +9,9 @@ const styles = StyleSheet.create({
     fontFamily: "Helvetica",
     color: "#111827",
   },
+  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
+  headerText: { flex: 1, paddingRight: 12 },
+  photo: { width: 64, height: 64, borderRadius: 4, objectFit: "cover" },
   name: { fontSize: 18, fontFamily: "Helvetica-Bold" },
   professionalTitle: { fontSize: 11, fontFamily: "Helvetica-Bold", color: "#374151", marginTop: 2 },
   contactLine: { fontSize: 9, color: "#4b5563", marginTop: 2 },
@@ -131,16 +134,22 @@ export function ResumePdfDocument({ resume }: { resume: ResumeData }) {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        <Text style={styles.name}>{personalInfo.name || "Your Name"}</Text>
-        {personalInfo.title && <Text style={styles.professionalTitle}>{personalInfo.title}</Text>}
-        <Text style={styles.contactLine}>
-          {[personalInfo.email, personalInfo.phone, personalInfo.location].filter(Boolean).join(" | ")}
-        </Text>
-        {(personalInfo.linkedin || personalInfo.website) && (
-          <Text style={styles.contactLine}>
-            {[personalInfo.linkedin, personalInfo.website].filter(Boolean).join(" | ")}
-          </Text>
-        )}
+        <View style={styles.header}>
+          <View style={styles.headerText}>
+            <Text style={styles.name}>{personalInfo.name || "Your Name"}</Text>
+            {personalInfo.title && <Text style={styles.professionalTitle}>{personalInfo.title}</Text>}
+            <Text style={styles.contactLine}>
+              {[personalInfo.email, personalInfo.phone, personalInfo.location].filter(Boolean).join(" | ")}
+            </Text>
+            {(personalInfo.linkedin || personalInfo.website) && (
+              <Text style={styles.contactLine}>
+                {[personalInfo.linkedin, personalInfo.website].filter(Boolean).join(" | ")}
+              </Text>
+            )}
+          </View>
+          {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf Image has no alt prop */}
+          {personalInfo.photo && <Image src={personalInfo.photo} style={styles.photo} />}
+        </View>
 
         {getResumeSectionOrder(resume).map((key) => sectionNodes[key])}
       </Page>
